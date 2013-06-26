@@ -1,4 +1,5 @@
-
 Supervizer
 
-"!https://travis-ci.org/oOThkOo/supervizer.png!":https://travis-ci.org/oOThkOo/supervizer
+![Travis Status](/https://travis-ci.org/oOthkOo/supervizer.png)
+
+
