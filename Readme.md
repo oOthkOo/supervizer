@@ -1,4 +1,5 @@
 Supervizer
+========================
 
 ![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png)
 
@@ -12,7 +13,7 @@ Features
 
 Usage
 -----
-
+``` sh
   supervizer.js [command] <options>
 
   Commands:
@@ -52,6 +53,6 @@ Usage
     -h --host <address>           specify host to bind
     -p --port <port>              specify port to bind
     -c --config <file>            specify config file to load
-
+```
 
 
