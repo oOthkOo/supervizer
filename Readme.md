@@ -1,6 +1,6 @@
 Supervizer
 
-![Travis Status](/https://travis-ci.org/oOthkOo/supervizer.png)
+![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png)
 
 Features
 -----
