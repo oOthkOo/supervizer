@@ -1,15 +1,21 @@
 Supervizer
 ========================
+A NodeJS daemon process manager to spawn/start/stop node app.
 
 ![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png)
 
 Features
 -----
- * Ubuntu compatible
- * Stop NodeJS properly
- * LOG file support
- * PID file support
- * User uid:gid support
+ * Start/Stop/Restart a node process
+ * Group any node process
+ * Start/Stop/Restart a node group process
+ * Programable crash process management
+ * Monitoring resources (restart count, uptime, memory, cpu etc..) for every process
+ * Full RESTfull API management via HTTP
+ * LOG files process management
+ * PID files process management
+ * User execution process management
+ * Load/Save all node process configuration from/to json file
 
 Usage
 -----
