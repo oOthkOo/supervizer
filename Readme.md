@@ -2,7 +2,18 @@ Supervizer
 
 ![Travis Status](/https://travis-ci.org/oOthkOo/supervizer.png)
 
-Usage: supervizer.js [command] <options>
+Features
+-----
+ * Ubuntu compatible
+ * Stop NodeJS properly
+ * LOG file support
+ * PID file support
+ * User uid:gid support
+
+Usage
+-----
+
+  supervizer.js [command] <options>
 
   Commands:
 
