@@ -315,10 +315,10 @@ commander.command('list')
 	var app = getAppPattern();	
 	var params = getRequestParams( 'apps/list', JSON.stringify(app) );
 	
-	console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
+	//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
 	
 	request.post( params, function(error, response, body){
-		console.log( '[receive]:\n - data: ' + JSON.stringify(body));
+		//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
 		
 		var query = isQueryValid(error, response, body);
 		if (!query) {

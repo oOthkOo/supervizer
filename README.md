@@ -2,6 +2,8 @@ Supervizer ![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png)
 ========================
 A NodeJS daemon process manager to spawn/start/stop node app.
 
+![List command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-list.png)
+
 Features
 -----
  * Start/Stop/Restart a node process
@@ -24,18 +26,18 @@ Usage
 
     help <command>     print required/allowed options for each command.
     install            install supervizer as daemon
-    load               load from a process configuration json file
-    save               save to a process configuration json file
-    add                add a node process
-    remove             delete a node process
-    start              start a new node process
-    startAll           start all node process
-    stop               stop a node process
-    stopAll            stop all node process
-    restart            restart a node process
-    restartAll         restart all node process
-    list               list all node process
-    monit              monitor all node process
+    load               load from a app configuration json file
+    save               save to a app configuration json file
+    add                add a node app
+    remove             delete a node app
+    start              start a new node app
+    startAll           start all node app
+    stop               stop a node app
+    stopAll            stop all node apps
+    restart            restart a node app
+    restartAll         restart all node apps
+    list               list all node apps
+    monit              monitor all node apps
     set <name>         setting process property value
     get <name> <param> getting process property value
     *                 
