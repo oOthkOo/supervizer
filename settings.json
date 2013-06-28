@@ -1,5 +1,12 @@
 {
-
-
-
+	"host": "http://localhost",
+	"port": 8200,	
+	"logLevel": "DEBUG",
+	"auth" : {
+		"user": "admin",
+		"password": "123456"
+	},
+	"database": {
+		"apps": "apps.json"
+	}	
 }
