@@ -1,8 +1,6 @@
-Supervizer
+Supervizer ![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png)
 ========================
 A NodeJS daemon process manager to spawn/start/stop node app.
-
-![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png)
 
 Features
 -----
