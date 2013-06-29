@@ -56,7 +56,7 @@ function showHttpError( code ) {
 }
 
 function showInfo( message ) {
-	console.log('\n\033[34m  [INFO]: ' + message + '\x1B[39m\n');
+	console.log('\n\033[32m  [INFO]: ' + message + '\x1B[39m\n');
 }
 
 function isQueryValid(error, response, body) {
@@ -87,7 +87,7 @@ function isQueryValid(error, response, body) {
 function getAppPattern() {	
 	return {
 		id: '',
-		name: commander.name || 'untitled',
+		name: commander.name || '',
 		group: commander.group || 'main',
 		uid: commander.run ? commander.run.split(':')[0] : '',
 		gid: commander.run ? commander.run.split(':')[1] : '',
@@ -151,7 +151,7 @@ function listFormat( type, value ) {
 function showAppList( apps ) {
 	
 	if ( !apps || apps.length < 1 ) {
-		console.log( 'No apps found.');
+		showInfo( 'No apps found.');
 		return;
 	}
 	
@@ -206,6 +206,87 @@ function getHumanBytes(bytes, precision) {
 	}
 };
 
+function getCommandOptions() {
+	var options = [];
+	if (typeof commander.force != 'undefined') {
+		options.push({ 
+			force: commander.force
+		});
+	}
+	if (typeof commander.name != 'undefined') {
+		options.push({ 
+			name: commander.name
+		});
+	}
+	if (typeof commander.run != 'undefined') {
+		options.push({ 
+			run: {
+				user: commander.run.split(':')[0],
+				group: commander.run.split(':')[1]
+			}
+		});
+	}
+	if (typeof commander.group != 'undefined') {
+		options.push({ 
+			group: commander.group
+		});
+	}
+	if (typeof commander.script != 'undefined') {
+		options.push({ 
+			script: commander.script
+		});
+	}
+	if (typeof commander.log != 'undefined') {
+		options.push({ 
+			log: commander.log
+		});
+	}
+	if (typeof commander.pid != 'undefined') {
+		options.push({ 
+			pid: commander.pid
+		});
+	}
+	if (typeof commander.host != 'undefined') {
+		options.push({ 
+			host: commander.host
+		});
+	}
+	if (typeof commander.watch != 'undefined') {
+		options.push({ 
+			watch: commander.watch
+		});
+	}
+	if (typeof commander.interval != 'undefined') {
+		options.push({ 
+			interval: commander.interval
+		});
+	}
+	if (typeof commander.exclude != 'undefined') {
+		options.push({ 
+			exclude: commander.exclude
+		});
+	}
+	if (typeof commander.port != 'undefined') {
+		options.push({ 
+			port: commander.port
+		});
+	}
+	if (typeof commander.auth != 'undefined') {
+		options.push({ 
+			auth: {
+				user: commander.auth.split(':')[0],
+				password: commander.auth.split(':')[1]
+			}
+		});
+	}
+	if (typeof commander.config != 'undefined') {
+		options.push({ 
+			config: commander.config
+		});
+	}
+	return options;
+}
+
 /**
  * Setting all commands
  */
@@ -238,7 +319,7 @@ commander.command('install')
 	.action(function() {
 		
 		if (process.getuid() != 0) {
-			spz_error('You must run supervizer as root for this command.');
+			showError('You must run supervizer as root for this command.');
 			process.exit(SPZ_ERROR_EXIT);
 		}		
 });
@@ -260,10 +341,10 @@ commander.command('add')
 		var app = getAppPattern();		
 		var params = getRequestParams( 'apps', JSON.stringify(app) );
 		
-		console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
+		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
 		
 		request.post( params, function(error, response, body){
-			console.log( '[receive]:\n - data: ' + JSON.stringify(body));
+			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
 			
 			var query = isQueryValid(error, response, body);
 			if (!query) {
@@ -281,6 +362,21 @@ commander.command('remove')
 commander.command('start')
 	.description('start a new node process')
 	.action(function() {
+		
+		var app = getAppPattern();		
+		var params = getRequestParams( 'app/start', JSON.stringify(app) );
+		
+		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
+		
+		request.post( params, function(error, response, body){
+			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
+			
+			var query = isQueryValid(error, response, body);
+			if (!query) {
+				process.exit(SPZ_ERROR_EXIT);
+			}
+			
+		});
 });
 
 commander.command('startAll')
@@ -339,8 +435,27 @@ commander.command('set <name>')
 	.description('setting process property value')
 	.action(function(name) {
 
-
-	
+		var data = {
+				search: name,
+				app: getAppPattern(),
+				options: getCommandOptions()
+		}		
+		var params = getRequestParams( 'app', JSON.stringify(data) );
+		
+		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
+		
+		request.post( params, function(error, response, body){
+			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
+			
+			var query = isQueryValid(error, response, body);
+			if (!query) {
+				process.exit(SPZ_ERROR_EXIT);
+			}
+			else {
+				showInfo('App (' + name + ') succesfully updated.');
+			}
+			
+		});
 
 
 

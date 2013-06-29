@@ -51,6 +51,32 @@ server.post('/apps', function(req, res) {
 	res.end(JSON.stringify(main.add(req.body)));
 });
 
+/**
+ * POST /app
+ */
+server.post('/app', function(req, res) {  	
+		
+	console.log( '[request]:\n' + ' - path: /app\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	
+	
+	
+	
+	res.end(JSON.stringify(main.set(req.body)));
+});
+
+/**
+ * POST /app/start
+ */
+server.post('/app/start', function(req, res) {  	
+		
+	console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	
+	
+	
+	
+	res.end(JSON.stringify(main.start(req.body)));
+});
+
 
 /**
  * POST /apps/list
