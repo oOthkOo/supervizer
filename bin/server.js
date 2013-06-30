@@ -45,9 +45,6 @@ server.post('/apps', function(req, res) {
 		
 	console.log( '[request]:\n' + ' - path: /apps\n - receive: ' + JSON.stringify(req.body) + '\n' );
 	
-	
-	
-	
 	res.end(JSON.stringify(main.add(req.body)));
 });
 
@@ -57,9 +54,6 @@ server.post('/apps', function(req, res) {
 server.post('/app', function(req, res) {  	
 		
 	console.log( '[request]:\n' + ' - path: /app\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	
-	
 	
 	res.end(JSON.stringify(main.set(req.body)));
 });
@@ -71,10 +65,17 @@ server.post('/app/start', function(req, res) {
 		
 	console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' );
 	
-	
-	
-	
 	res.end(JSON.stringify(main.start(req.body)));
+});
+
+/**
+ * POST /app/stop
+ */
+server.post('/app/stop', function(req, res) {  	
+		
+	console.log( '[request]:\n' + ' - path: /app/stop\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	
+	res.end(JSON.stringify(main.stop(req.body)));
 });
 
 
@@ -84,9 +85,6 @@ server.post('/app/start', function(req, res) {
 server.post('/apps/list', function(req, res) {
 	
 	console.log( '[request]:\n' + ' - path: /apps/list\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	
-	
 	
 	res.end(JSON.stringify(main.list(req.body)));
 });

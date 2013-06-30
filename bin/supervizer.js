@@ -92,6 +92,7 @@ function getAppPattern() {
 		uid: commander.run ? commander.run.split(':')[0] : '',
 		gid: commander.run ? commander.run.split(':')[1] : '',
 		script: commander.script || '',
+		created: new Date().getTime(),
 		watch: {
 			enabled: commander.watch ? true : false,
 			interval: commander.interval || 2000,
@@ -102,11 +103,12 @@ function getAppPattern() {
 			pid: commander.pid || '',
 			log: commander.log || ''
 		},
-		host: commander.host || 'http://localhost',
+		host: commander.host || '',
 		port: commander.port || '',
 		pid: '',
 		status: 'down',
 		stats: {
+			uptime: 0,
 			started: 0,
 			crashed: 0,
 			stopped: 0,
@@ -131,7 +133,7 @@ function listFormat( type, value ) {
 		case 'script':
 			return value ? path.basename(value) : 'N/C';
 		case 'memory':
-			return getHumanBytes( value || 0, 2 );
+			return value ? getHumanBytes( value ) : 'N/C';
 		case 'uptime':
 			return value || 'N/C';
 		case 'pid':
@@ -350,6 +352,9 @@ commander.command('add')
 			if (!query) {
 				process.exit(SPZ_ERROR_EXIT);
 			}
+			else {
+				showInfo(query.success);
+			}
 			
 		});
 });
@@ -375,6 +380,9 @@ commander.command('start')
 			if (!query) {
 				process.exit(SPZ_ERROR_EXIT);
 			}
+			else {
+				showInfo(query.success);
+			}
 			
 		});
 });
@@ -387,6 +395,24 @@ commander.command('startAll')
 commander.command('stop')
 	.description('stop a node process')
 	.action(function() {
+		
+		var app = getAppPattern();		
+		var params = getRequestParams( 'app/stop', JSON.stringify(app) );
+		
+		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
+		
+		request.post( params, function(error, response, body){
+			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
+			
+			var query = isQueryValid(error, response, body);
+			if (!query) {
+				process.exit(SPZ_ERROR_EXIT);
+			}
+			else {
+				showInfo(query.success);
+			}
+			
+		});
 });
 
 commander.command('stopAll')
@@ -452,15 +478,10 @@ commander.command('set <name>')
 				process.exit(SPZ_ERROR_EXIT);
 			}
 			else {
-				showInfo('App (' + name + ') succesfully updated.');
+				showInfo(query.success);
 			}
 			
 		});
-
-
-
-
-
 
 });
 
