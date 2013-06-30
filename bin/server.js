@@ -69,6 +69,36 @@ server.post('/app/start', function(req, res) {
 });
 
 /**
+ * POST /apps/start
+ */
+server.post('/apps/start', function(req, res) {  	
+		
+	console.log( '[request]:\n' + ' - path: /apps/start\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	
+	res.end(JSON.stringify(main.startAll(req.body)));
+});
+
+/**
+ * POST /app/restart
+ */
+server.post('/app/restart', function(req, res) {  	
+		
+	console.log( '[request]:\n' + ' - path: /app/restart\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	
+	res.end(JSON.stringify(main.restart(req.body)));
+});
+
+/**
+ * POST /apps/restart
+ */
+server.post('/apps/restart', function(req, res) {  	
+		
+	console.log( '[request]:\n' + ' - path: /apps/restart\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	
+	res.end(JSON.stringify(main.restartAll(req.body)));
+});
+
+/**
  * POST /app/stop
  */
 server.post('/app/stop', function(req, res) {  	
@@ -76,6 +106,16 @@ server.post('/app/stop', function(req, res) {
 	console.log( '[request]:\n' + ' - path: /app/stop\n - receive: ' + JSON.stringify(req.body) + '\n' );
 	
 	res.end(JSON.stringify(main.stop(req.body)));
+});
+
+/**
+ * POST /apps/stop
+ */
+server.post('/apps/stop', function(req, res) {  	
+		
+	console.log( '[request]:\n' + ' - path: /apps/stop\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	
+	res.end(JSON.stringify(main.stopAll(req.body)));
 });
 
 

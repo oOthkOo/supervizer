@@ -106,6 +106,7 @@ function getAppPattern() {
 		host: commander.host || '',
 		port: commander.port || '',
 		pid: '',
+		keepAlive: commander.keepAlive == 'yes' ? true : false,
 		status: 'down',
 		stats: {
 			uptime: 0,
@@ -253,6 +254,11 @@ function getCommandOptions() {
 			host: commander.host
 		});
 	}
+	if (typeof commander.keepAlive != 'undefined') {
+		options.push({ 
+			keepAlive: commander.keepAlive == 'yes' ? true : false
+		});
+	}
 	if (typeof commander.watch != 'undefined') {
 		options.push({ 
 			watch: commander.watch
@@ -301,6 +307,7 @@ commander.version(common.pkg.version)
 	.option('-s --script <path>', 'specify app main script')
 	.option('-l --log <file>', 'specify app log output file')
 	.option('-t --pid <file>', 'specify app pid file')
+	.option('-k --keep <yes/no)', 'keep alive app (default:yes)')
 	.option('-w --watch <path>', 'specify path to watch')
 	.option('-i --interval <milliseconds>', 'specify interval in milliseconds for watch')
 	.option('-e --exclude <path>', 'specify path to exclude')
@@ -390,6 +397,24 @@ commander.command('start')
 commander.command('startAll')
 	.description('start all node process')
 	.action(function() {
+		
+		var app = getAppPattern();		
+		var params = getRequestParams( 'apps/start', JSON.stringify(app) );
+		
+		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
+		
+		request.post( params, function(error, response, body){
+			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
+			
+			var query = isQueryValid(error, response, body);
+			if (!query) {
+				process.exit(SPZ_ERROR_EXIT);
+			}
+			else {
+				showInfo(query.success);
+			}
+			
+		});
 });
 
 commander.command('stop')
@@ -418,16 +443,70 @@ commander.command('stop')
 commander.command('stopAll')
 	.description('stop all node process')
 	.action(function() {
+		
+		var app = getAppPattern();		
+		var params = getRequestParams( 'apps/stop', JSON.stringify(app) );
+		
+		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
+		
+		request.post( params, function(error, response, body){
+			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
+			
+			var query = isQueryValid(error, response, body);
+			if (!query) {
+				process.exit(SPZ_ERROR_EXIT);
+			}
+			else {
+				showInfo(query.success);
+			}
+			
+		});
 });
 
 commander.command('restart')
 	.description('restart a node process')
 	.action(function() {
+		
+		var app = getAppPattern();		
+		var params = getRequestParams( 'app/restart', JSON.stringify(app) );
+		
+		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
+		
+		request.post( params, function(error, response, body){
+			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
+			
+			var query = isQueryValid(error, response, body);
+			if (!query) {
+				process.exit(SPZ_ERROR_EXIT);
+			}
+			else {
+				showInfo(query.success);
+			}
+			
+		});
 });
 
 commander.command('restartAll')
 	.description('restart all node process')
 	.action(function() {
+		
+		var app = getAppPattern();		
+		var params = getRequestParams( 'apps/restart', JSON.stringify(app) );
+		
+		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
+		
+		request.post( params, function(error, response, body){
+			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
+			
+			var query = isQueryValid(error, response, body);
+			if (!query) {
+				process.exit(SPZ_ERROR_EXIT);
+			}
+			else {
+				showInfo(query.success);
+			}
+			
+		});
 });
 
 commander.command('list')
