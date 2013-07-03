@@ -99,6 +99,9 @@ function getAppPattern() {
 			path: commander.watch || '',
 			excludes: commander.exclude || []
 		},
+		stopped: false,
+		attempted: false,
+		stdout: null,
 		files: {
 			pid: commander.pid || '',
 			log: commander.log || ''
@@ -106,7 +109,9 @@ function getAppPattern() {
 		host: commander.host || '',
 		port: commander.port || '',
 		pid: '',
-		keepAlive: commander.keepAlive == 'yes' ? true : false,
+		keep: commander.keep == 'yes' ? true : false,
+		curAttempt: 0,
+		attempt: commander.attempt || 3,		
 		status: 'down',
 		stats: {
 			uptime: 0,
@@ -160,7 +165,7 @@ function showAppList( apps ) {
 	
 	var table = new Table({
 	    head: ['id', 'name', 'pid','script', 'group', 'status', 'host', 'port', 'mem', 'uptime'],
-	    colWidths: [5, 15, 8, 15, 10, 8, 20, 9, 8, 8]
+	    colWidths: [5, 15, 8, 15, 10, 8, 15, 9, 8, 8]
 	    
 	});
 	
@@ -254,9 +259,14 @@ function getCommandOptions() {
 			host: commander.host
 		});
 	}
-	if (typeof commander.keepAlive != 'undefined') {
+	if (typeof commander.keep != 'undefined') {
 		options.push({ 
-			keepAlive: commander.keepAlive == 'yes' ? true : false
+			keep: commander.keep == 'yes' ? true : false
+		});
+	}
+	if (typeof commander.attempt != 'undefined') {
+		options.push({ 
+			attempt: commander.attempt
 		});
 	}
 	if (typeof commander.watch != 'undefined') {
@@ -308,10 +318,11 @@ commander.version(common.pkg.version)
 	.option('-l --log <file>', 'specify app log output file')
 	.option('-t --pid <file>', 'specify app pid file')
 	.option('-k --keep <yes/no)', 'keep alive app (default:yes)')
+	.option('-t --attempt <number)', 'max restart count (default:3)')
 	.option('-w --watch <path>', 'specify path to watch')
 	.option('-i --interval <milliseconds>', 'specify interval in milliseconds for watch')
 	.option('-e --exclude <path>', 'specify path to exclude')
-	.option('-h --host <address>', 'specify host to bind')
+	.option('-h --host <address>', 'specify address to bind')
 	.option('-p --port <port>', 'specify port to bind')
 	.option('-a --auth <user:password>', 'specify user/password to use')
 	.option('-c --config <file>', 'specify config file to load')

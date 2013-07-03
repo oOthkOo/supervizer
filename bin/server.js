@@ -7,7 +7,7 @@ var server = express();
 
 server.disable('x-powered-by');
 server.use(express.bodyParser());
-server.use(express.logger());
+//server.use(express.logger());
 
 /**
  * API endpoints
@@ -43,7 +43,7 @@ server.get('/', function(req, res) {
  */
 server.post('/apps', function(req, res) {  	
 		
-	console.log( '[request]:\n' + ' - path: /apps\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	//console.log( '[request]:\n' + ' - path: /apps\n - receive: ' + JSON.stringify(req.body) + '\n' );
 	
 	res.end(JSON.stringify(main.add(req.body)));
 });
@@ -53,7 +53,7 @@ server.post('/apps', function(req, res) {
  */
 server.post('/app', function(req, res) {  	
 		
-	console.log( '[request]:\n' + ' - path: /app\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	//console.log( '[request]:\n' + ' - path: /app\n - receive: ' + JSON.stringify(req.body) + '\n' );
 	
 	res.end(JSON.stringify(main.set(req.body)));
 });
@@ -63,7 +63,7 @@ server.post('/app', function(req, res) {
  */
 server.post('/app/start', function(req, res) {  	
 		
-	console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	//console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' );
 	
 	res.end(JSON.stringify(main.start(req.body)));
 });
@@ -73,7 +73,7 @@ server.post('/app/start', function(req, res) {
  */
 server.post('/apps/start', function(req, res) {  	
 		
-	console.log( '[request]:\n' + ' - path: /apps/start\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	//console.log( '[request]:\n' + ' - path: /apps/start\n - receive: ' + JSON.stringify(req.body) + '\n' );
 	
 	res.end(JSON.stringify(main.startAll(req.body)));
 });
@@ -83,7 +83,7 @@ server.post('/apps/start', function(req, res) {
  */
 server.post('/app/restart', function(req, res) {  	
 		
-	console.log( '[request]:\n' + ' - path: /app/restart\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	//console.log( '[request]:\n' + ' - path: /app/restart\n - receive: ' + JSON.stringify(req.body) + '\n' );
 	
 	res.end(JSON.stringify(main.restart(req.body)));
 });
@@ -93,7 +93,7 @@ server.post('/app/restart', function(req, res) {
  */
 server.post('/apps/restart', function(req, res) {  	
 		
-	console.log( '[request]:\n' + ' - path: /apps/restart\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	//console.log( '[request]:\n' + ' - path: /apps/restart\n - receive: ' + JSON.stringify(req.body) + '\n' );
 	
 	res.end(JSON.stringify(main.restartAll(req.body)));
 });
@@ -103,7 +103,7 @@ server.post('/apps/restart', function(req, res) {
  */
 server.post('/app/stop', function(req, res) {  	
 		
-	console.log( '[request]:\n' + ' - path: /app/stop\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	//console.log( '[request]:\n' + ' - path: /app/stop\n - receive: ' + JSON.stringify(req.body) + '\n' );
 	
 	res.end(JSON.stringify(main.stop(req.body)));
 });
@@ -113,18 +113,17 @@ server.post('/app/stop', function(req, res) {
  */
 server.post('/apps/stop', function(req, res) {  	
 		
-	console.log( '[request]:\n' + ' - path: /apps/stop\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	//console.log( '[request]:\n' + ' - path: /apps/stop\n - receive: ' + JSON.stringify(req.body) + '\n' );
 	
 	res.end(JSON.stringify(main.stopAll(req.body)));
 });
-
 
 /**
  * POST /apps/list
  */
 server.post('/apps/list', function(req, res) {
 	
-	console.log( '[request]:\n' + ' - path: /apps/list\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	//console.log( '[request]:\n' + ' - path: /apps/list\n - receive: ' + JSON.stringify(req.body) + '\n' );
 	
 	res.end(JSON.stringify(main.list(req.body)));
 });
@@ -138,5 +137,9 @@ server.use(function(err, req, res, next) {
 	console.error(err.stack);
 });
 
+process.on('close', function(code) {
+	main.showInfo('Supervizer server stopped.');
+});
+
 server.listen(common.settings.port);
-console.log('Supervizer server started.');
+main.showInfo('Supervizer server started.');
