@@ -36,6 +36,55 @@ $(function () {
 	});
 ```
 
+Installation (module)
+-----
+To install node supervizer module from npm repository :
+``` sh
+  npm install -g supervizer
+```
+
+Installation (master)
+-----
+To install supervizer master daemon, you must run this command as root :
+``` sh
+  sudo supervizer --install
+```
+
+Configuration (apps)
+-----
+To make your process compatible with Supervizer, you must follow this code example to retrieve host and port parameters :
+``` js
+var host = process.argv[2] || '0.0.0.0';
+var port = process.argv[3] || '5000';
+```
+For example, if you use expressjs framework :
+``` js
+var express = require('express');
+var server = express();
+
+server.use(express.static(__dirname + '/public'));
+server.use(express.logger());
+
+server.get('/', function(req, res) {  	
+	res.end('Hello word!');
+});
+
+server.get('*', function(req, res) {
+  	res.send('Not Found!', 404);
+});
+
+server.use(function(err, req, res, next) {  	
+  	res.send(500, 'Something broke!');
+	console.error(err.stack);
+});
+
+var host = process.argv[2] || '0.0.0.0';
+var port = process.argv[3] || '5000';
+
+server.listen(port,host);
+console.log('Listening on port ' + port);
+```
+
 Usage
 -----
 ``` sh
