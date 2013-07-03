@@ -9,12 +9,14 @@ Features
  * Start/Stop/Restart a node process
  * Group any node process
  * Start/Stop/Restart a node group process
- * Programable crash process management
+ * Hot change node process host, port, logs in live ;-)
+ * Keep alive/Restart a node process when it crash
  * Monitoring resources (restart count, uptime, memory, cpu etc..) for every process
+ * Watch directories/files management to restart process
  * Full RESTfull API management via HTTP
  * LOG files process management
  * PID files process management
- * User execution process management
+ * User execution process management by uid:gid
  * Load/Save all node process configuration from/to json file
 
 Usage
@@ -26,18 +28,18 @@ Usage
 
     help <command>     print required/allowed options for each command.
     install            install supervizer as daemon
-    load               load from a app configuration json file
-    save               save to a app configuration json file
-    add                add a node app
-    remove             delete a node app
-    start              start a new node app
-    startAll           start all node app
-    stop               stop a node app
-    stopAll            stop all node apps
-    restart            restart a node app
-    restartAll         restart all node apps
-    list               list all node apps
-    monit              monitor all node apps
+    load               load from a process configuration json file
+    save               save to a process configuration json file
+    add                add a node process
+    remove             delete a node process
+    start              start a new node process
+    startAll           start all node process
+    stop               stop a node process
+    stopAll            stop all node process
+    restart            restart a node process
+    restartAll         restart all node process
+    list               list all node process
+    monit              monitor all node process
     set <name>         setting process property value
     get <name> <param> getting process property value
     *                 
@@ -54,10 +56,12 @@ Usage
     -s --script <path>            specify app main script
     -l --log <file>               specify app log output file
     -t --pid <file>               specify app pid file
+    -k --keep <yes/no>            keep alive app (default:yes)
+    -t --attempt <number>         max restart to keep alive (default:3)
     -w --watch <path>             specify path to watch
     -i --interval <milliseconds>  specify interval in milliseconds for watch
     -e --exclude <path>           specify path to exclude
-    -h --host <address>           specify host to bind
+    -h --host <address>           specify address to bind
     -p --port <port>              specify port to bind
     -a --auth <user:password>     specify user/password to use
     -c --config <file>            specify config file to load
@@ -83,8 +87,26 @@ Supervizer daemon has an RESTfull http interface wich allow you to control it re
 | list			      | POST	    	| /apps/list		  |	Get app state list                |
 | monit		        | POST		    | /apps/monit     |	Monitor all apps                  |
 | set			        | POST		    | /app			      |	Set an app property		            |	
-| get			        | POST		    | /app			      |	Get an app property               |
+| get			        | POST		    | /app			      |	Get an app property
 
- 
+TODOs (commands)
+-----
+Theses commands actually doesn't work
+             
+	* load
+	* save
+	* remove
+	* monit
+	* get
+	
+ TODOs (options)
+-----
+Theses options actually doesn't work
 
+	* force
+	* watch
+	* interval
+	* exclude
+	* auth
+	* config
 
