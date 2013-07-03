@@ -19,23 +19,6 @@ Features
  * User execution process management by uid:gid
  * Load/Save all node process configuration from/to json file
  
-Installation
------
-To make your process compatible with Supervizer, you must follow this code example
-``` js
-<script>
-$(function () {
-  			
-	console.log( 'jquery: ' + $().jquery );
-	console.log( 'clockz: ' + clockz.version );
-
-	var anim1 = {
-		name: 'anim1',
-		loop: true	};
-		
-	});
-```
-
 Installation (module)
 -----
 To install node supervizer module from npm repository :
