@@ -25,6 +25,12 @@ To install node supervizer module from npm repository :
 ``` sh
   npm install -g supervizer
 ```
+Or from source:
+``` sh
+  git clone git://github.com/mikeal/request.git 
+  cd request
+  npm link -g
+```
 
 Installation (master)
 -----
@@ -80,7 +86,7 @@ Usage
     load               load from a process configuration json file
     save               save to a process configuration json file
     add                add a node process
-    remove             delete a node process
+    remove             remove a node process
     start              start a new node process
     startAll           start all node process
     stop               stop a node process
@@ -91,7 +97,7 @@ Usage
     monit              monitor all node process
     set <name>         setting process property value
     get <name> <param> getting process property value
-    *                 
+    uninstall          uninstall supervizer daemon
 
   Options:
 
@@ -136,15 +142,13 @@ Supervizer daemon has an RESTfull http interface wich allow you to control it re
 | list			      | POST	    	| /apps/list		  |	Get app state list                |
 | monit		        | POST		    | /apps/monit     |	Monitor all apps                  |
 | set			        | POST		    | /app			      |	Set an app property		            |	
-| get			        | POST		    | /app			      |	Get an app property
+| get			        | GET		    | /app			      |	Get an app property
 
 TODOs (commands)
 -----
 Theses commands actually doesn't work
              
-	* remove
 	* monit
-	* get
 	
  TODOs (options)
 -----

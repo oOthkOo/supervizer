@@ -33,8 +33,6 @@
   "dependencies": {
     "commander": "1.1.0",
     "cli-table" : "0.0.1",
-    "usage": "0.3.5",
-    "watch": "0.7.0",
     "express": "3.3.1",
     "request": "*"
   },

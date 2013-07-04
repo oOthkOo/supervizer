@@ -89,11 +89,13 @@ function getAppPattern() {
 		id: '',
 		name: commander.name || '',
 		group: commander.group || 'main',
-		uid: commander.run ? commander.run.split(':')[0] : '',
-		gid: commander.run ? commander.run.split(':')[1] : '',
+		uid: 0,
+		suid: commander.run ? commander.run.split(':')[0] : '',
+		gid: 0,
+		sgid: commander.run ? commander.run.split(':')[1] : '',				
 		script: commander.script || '',
 		created: new Date().getTime(),
-		started: new Date().getTime(),
+		started: '',
 		watch: {			
 			enabled: commander.watch ? true : false,
 			interval: commander.interval || 2000,
@@ -143,7 +145,7 @@ function listFormat( type, value ) {
 		case 'memory':
 			return value ? getHumanBytes(value) : 'N/C';
 		case 'uptime':
-			return value ? getHumanPeriod(value) : 'N/C';
+			return value > 0 ? getHumanPeriod(value) : 'N/C';
 		case 'pid':
 			return value || 'N/C';
 		case 'host':
@@ -152,6 +154,8 @@ function listFormat( type, value ) {
 			return value;
 		case 'port':
 			return value || 'N/C';
+		case 'run':
+			return value != ':' ? value : 'N/C';
 		default:
 			return value;
 	}
@@ -166,9 +170,8 @@ function showAppList( apps ) {
 	}
 	
 	var table = new Table({
-	    head: ['id', 'name', 'pid','script', 'group', 'status', 'host', 'port', 'uptime'],
-	    colWidths: [5, 15, 8, 15, 10, 8, 15, 9, 12]
-	    
+	    head: ['id', 'name', 'pid', 'user', 'script', 'group', 'status', 'host', 'port', 'uptime'],
+	    colWidths: [5, 15, 8, 15, 15, 10, 8, 15, 9, 12]	    
 	});
 	
 	for (var a=0; a<apps.length; a++) {
@@ -177,6 +180,7 @@ function showAppList( apps ) {
 		     listFormat('id', app.id),
 		     listFormat('name', app.name),
 		     listFormat('pid', app.pid),
+		     listFormat('run', app.uid + ':' + app.gid),
 		     listFormat('script', app.script),
 		     listFormat('group', app.group),
 		     listFormat('status', app.status),
@@ -187,6 +191,61 @@ function showAppList( apps ) {
 	}
 
 	console.log(table.toString());
+}
+
+function getDateValue( timestamp ) {
+	if (!timestamp || timestamp < 1) {
+		return '';
+	}	
+	return main.formatDate(new Date(timestamp),"%Y-%m-%d %H:%M:%S",false);
+}
+
+function showAppProperties( app ) {
+	
+	console.log('[name]: ' + app.name);
+	console.log('[group]: ' + app.group);
+	console.log('[uid]: ' + app.suid);
+	console.log('[gid]: ' + app.sgid);
+	console.log('[status]: ' + app.status);
+	console.log('[host]: ' + app.host);
+	console.log('[port]: ' + app.port);
+	console.log('[created]: ' + getDateValue( app.created ));
+	console.log('[started]: ' + getDateValue( app.started ));
+	console.log('[pid]: ' + app.pid);
+	console.log('[uptime]: ' + (app.started > 0 ? getHumanPeriod(app.started) : ''));
+	console.log('[script]: ' + app.script);
+	console.log('[watch]: ' + (app.watch.enabled ? 'yes' : 'no'));
+	if (app.watch && app.watch.enabled) {		
+		console.log('[watch.interval]: ' + app.watch.interval);
+		console.log('[watch.path]: ' + app.watch.path);
+		if (app.watch.excludes) {
+			for (var e=0; e<app.watch.excludes.length; e++) {
+				console.log('[watch.exclude-' + e + ']: ' + app.watch.path);
+			}
+		}
+	}
+	console.log('[keep]: ' + (app.keep ? 'yes' : 'no'));
+	if (app.keep) {		
+		console.log('[keep.attempt]: ' + app.curAttempt);
+		console.log('[keep.max]: ' + app.attempt);
+	}	
+	if (app.files) {
+		console.log('[log.file]: ' + app.files.log);
+		console.log('[pid.file]: ' + app.files.pid);
+	}
+	console.log('[stats.started]: ' + app.stats.started);
+	console.log('[stats.crashed]: ' + app.stats.crashed);
+	console.log('[stats.stopped]: ' + app.stats.stopped);
+	console.log('[stats.restarted]: ' + app.stats.restarted);
+	console.log('[stats.cpu]: ' + app.stats.cpu + ' %');
+	console.log('[stats.memory]: ' + getHumanBytes(app.stats.memory));
+}
+
+function monitAppList( stats ) {
+	
+	//console.log('\033[0m');
+	
+	//console.log('updated.');
 }
 
 function getHumanBytes(bytes, precision) {
@@ -216,15 +275,15 @@ function getHumanBytes(bytes, precision) {
 };
 
 function getHumanPeriod( time ) {
-	var millisecond = 1000;
-	var second = millisecond * 60;
-	var minute = second * 60;
-	var hour = minute * 60;
-	var day = hour * 24;
+	
+	var second = 1000;
+	var minute = 60000;
+	var hour = 3600000;
+	var day = 86400000;
 	
 	var curTime = new Date().getTime();
 	var resultTime = Math.max(curTime - time,0);
-	var d, h, m, s, ms;
+	var d, h, m, s;
 	var result = '';
 
 	d = Math.round(resultTime / day);
@@ -239,16 +298,12 @@ function getHumanPeriod( time ) {
 	if (m > 0) {
 		resultTime = resultTime % minute;
 	}
-	s = Math.round(resultTime / second);
-	ms = resultTime % millisecond;
+	s = Math.round(resultTime / second);	
 
 	if (d > 0) { result += d + 'd '; }
 	if (h > 0) { result += h + 'h '; }
 	if (m > 0) { result += m + 'm '; }
-	if (s > 0) { result += s + 's '; }
-	if (ms > 0) { result += ms + 'ms'; }
-
-	console.log( 'd:'+d+'h:'+h+'m:'+m+'s:'+s+'ms:'+ms );
+	if (s > 0) { result += s + 's'; }
 
 	return result;
 };
@@ -320,7 +375,7 @@ function getCommandOptions() {
 	}
 	if (typeof commander.exclude != 'undefined') {
 		options.push({ 
-			exclude: commander.exclude
+			excludes: commander.excludes
 		});
 	}
 	if (typeof commander.port != 'undefined') {
@@ -374,7 +429,17 @@ commander.command('help <command>')
 });
 
 commander.command('install')
-	.description('install supervizer as daemon')
+.description('install supervizer as daemon')
+.action(function() {
+	
+	if (process.getuid() != 0) {
+		showError('You must run supervizer as root for this command.');
+		process.exit(SPZ_ERROR_EXIT);
+	}		
+});
+
+commander.command('uninstall')
+	.description('uninstall supervizer as daemon')
 	.action(function() {
 		
 		if (process.getuid() != 0) {
@@ -457,8 +522,26 @@ commander.command('add')
 });
 
 commander.command('remove')
-	.description('delete a node process')
+	.description('remove a node process')
 	.action(function() {
+		
+		var app = getAppPattern();		
+		var params = getRequestParams( 'apps', JSON.stringify(app) );
+		
+		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
+		
+		request.del( params, function(error, response, body){
+			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
+			
+			var query = isQueryValid(error, response, body);
+			if (!query) {
+				process.exit(SPZ_ERROR_EXIT);
+			}
+			else {
+				showInfo(query.success);
+			}
+			
+		});		
 });
 
 commander.command('start')
@@ -615,7 +698,9 @@ commander.command('list')
 		if (!query) {
 			process.exit(SPZ_ERROR_EXIT);
 		}
-		showAppList( query.data );
+		else {
+			showAppList( query.data );
+		}
 		
 	});
 		
@@ -624,6 +709,28 @@ commander.command('list')
 commander.command('monit')
 	.description('monitor all node process')
 	.action(function() {
+		
+		var app = getAppPattern();	
+		var params = getRequestParams( 'apps/monit', JSON.stringify(app) );
+		
+		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
+		
+		setInterval(function(){
+			
+			request.post( params, function(error, response, body){
+				//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
+				
+				var query = isQueryValid(error, response, body);
+				if (!query) {
+					process.exit(SPZ_ERROR_EXIT);
+				}
+				else {
+					monitAppList( query.data );
+				}
+				
+			});
+			
+		}, 1000);
 });
 
 commander.command('set <name>')
@@ -654,20 +761,37 @@ commander.command('set <name>')
 
 });
 
-commander.command('get <name> <param>')
-	.description('getting process property value')
+commander.command('get <name>')
+	.description('getting process properties values')
 	.action(function(name,param) {
-
-	console.log('name: ' + name);
-	console.log('param: ' + param);
+		
+		var data = {
+				search: name
+		}		
+		var params = getRequestParams( 'app', JSON.stringify(data) );
+		
+		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
+		
+		request.get( params, function(error, response, body){
+			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
+			
+			var query = isQueryValid(error, response, body);
+			if (!query) {
+				process.exit(SPZ_ERROR_EXIT);
+			}
+			else {
+				showAppProperties( query.data );
+			}
+			
+		});
 });
 
 
 commander.command('*')
 	.action(function() {
-	spz_info('Command not found.');
-	commander.outputHelp();
-	process.exit(SPZ_ERROR_EXIT);
+		showError('Command not found.');
+		commander.outputHelp();
+		process.exit(SPZ_ERROR_EXIT);
 });
 
 if (process.argv.length == 2) {

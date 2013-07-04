@@ -69,6 +69,16 @@ server.post('/apps', function(req, res) {
 });
 
 /**
+ * DELETE /apps
+ */
+server.del('/apps', function(req, res) {  	
+		
+	//console.log( '[request]:\n' + ' - path: /apps\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	
+	res.end(JSON.stringify(main.remove(req.body)));
+});
+
+/**
  * POST /app
  */
 server.post('/app', function(req, res) {  	
@@ -76,6 +86,16 @@ server.post('/app', function(req, res) {
 	//console.log( '[request]:\n' + ' - path: /app\n - receive: ' + JSON.stringify(req.body) + '\n' );
 	
 	res.end(JSON.stringify(main.set(req.body)));
+});
+
+/**
+ * GET /app
+ */
+server.get('/app', function(req, res) {  	
+		
+	//console.log( '[request]:\n' + ' - path: /app\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	
+	res.end(JSON.stringify(main.get(req.body)));
 });
 
 /**
@@ -146,6 +166,16 @@ server.post('/apps/list', function(req, res) {
 	//console.log( '[request]:\n' + ' - path: /apps/list\n - receive: ' + JSON.stringify(req.body) + '\n' );
 	
 	res.end(JSON.stringify(main.list(req.body)));
+});
+
+/**
+ * POST /apps/monit
+ */
+server.post('/apps/monit', function(req, res) {
+	
+	//console.log( '[request]:\n' + ' - path: /apps/monit\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	
+	res.end(JSON.stringify(main.monit(req.body)));
 });
 
 server.get('*', function(req, res) {
