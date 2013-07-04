@@ -98,7 +98,6 @@ Usage
     monit              monitor all node process
     set <name>         setting process property value
     get <name>         getting process properties values
-    *                 
 
   Options:
 
@@ -148,7 +147,8 @@ Supervizer daemon has an RESTfull http interface wich allow you to control it re
 TODOs (commands)
 -----
 Theses commands actually doesn't work
-             
+     
+    * help        
 	* monit
 	
  TODOs (options)
