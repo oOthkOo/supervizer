@@ -93,15 +93,16 @@ function getAppPattern() {
 		gid: commander.run ? commander.run.split(':')[1] : '',
 		script: commander.script || '',
 		created: new Date().getTime(),
-		watch: {
+		watch: {			
 			enabled: commander.watch ? true : false,
 			interval: commander.interval || 2000,
 			path: commander.watch || '',
 			excludes: commander.exclude || []
 		},
+		timer: null,
 		stopped: false,
 		attempted: false,
-		stdout: null,
+		stdout: null,		
 		files: {
 			pid: commander.pid || '',
 			log: commander.log || ''
@@ -325,7 +326,7 @@ commander.version(common.pkg.version)
 	.option('-h --host <address>', 'specify address to bind')
 	.option('-p --port <port>', 'specify port to bind')
 	.option('-a --auth <user:password>', 'specify user/password to use')
-	.option('-c --config <file>', 'specify config file to load')
+	.option('-c --config <file>', 'specify config file to load/save')
 	.usage('[command] <options>');
 
 commander.command('help <command>')
@@ -347,11 +348,51 @@ commander.command('install')
 commander.command('load')
 	.description('load from a process configuration json file')
 	.action(function() {
+		
+		var data = {
+				file: commander.config || common.settings.apps
+		}
+		var params = getRequestParams( 'config/load', JSON.stringify(data) );
+		
+		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
+		
+		request.post( params, function(error, response, body){
+			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
+			
+			var query = isQueryValid(error, response, body);
+			if (!query) {
+				process.exit(SPZ_ERROR_EXIT);
+			}
+			else {
+				showInfo(query.success);
+			}
+			
+		});
 });
 
 commander.command('save')
 	.description('save to a process configuration json file')
 	.action(function() {
+		
+		var data = {
+				file: commander.config || common.settings.apps
+		}
+		var params = getRequestParams( 'config/save', JSON.stringify(data) );
+		
+		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
+		
+		request.post( params, function(error, response, body){
+			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
+			
+			var query = isQueryValid(error, response, body);
+			if (!query) {
+				process.exit(SPZ_ERROR_EXIT);
+			}
+			else {
+				showInfo(query.success);
+			}
+			
+		});
 });
 
 commander.command('add')

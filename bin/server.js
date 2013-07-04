@@ -15,8 +15,8 @@ server.use(express.bodyParser());
  * COMMANDs		VERBs		URIs				Descriptions
  * 
  * 				GET   		/					Show server banner
- * load			GET			/config/load		Load all apps from file
- * save			PUT			/config/save		Save all apps to file
+ * load			POST		/config/load		Load all apps from file
+ * save			POST		/config/save		Save all apps to file
  * add			POST		/apps				Add an app to run
  * remove		DELETE		/apps				Stop and Remove an app
  * start		POST		/app/start			Start an app
@@ -36,6 +36,26 @@ server.use(express.bodyParser());
  */
 server.get('/', function(req, res) {  	
 	res.end('Supervizer server v' + common.pkg.version);
+});
+
+/**
+ * GET /config/load
+ */
+server.post('/config/load', function(req, res) {  	
+		
+	//console.log( '[request]:\n' + ' - path: /config/load\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	
+	res.end(JSON.stringify(main.load(req.body)));
+});
+
+/**
+ * POST /config/save
+ */
+server.post('/config/save', function(req, res) {  	
+		
+	//console.log( '[request]:\n' + ' - path: /config/save\n - receive: ' + JSON.stringify(req.body) + '\n' );
+	
+	res.end(JSON.stringify(main.save(req.body)));
 });
 
 /**

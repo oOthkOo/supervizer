@@ -6,8 +6,6 @@
 		"user": "admin",
 		"password": "123456"
 	},
-	"database": {
-		"apps": "apps.json"
-	},
+	"apps": "apps.json",
 	"bin": "/usr/bin/node"	
 }

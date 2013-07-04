@@ -123,8 +123,8 @@ Supervizer daemon has an RESTfull http interface wich allow you to control it re
 | COMMANDs        | VERBs       | URIs            | Descriptions                      |
 | ----------------|-------------|-----------------|-----------------------------------|   						
 |				          | GET   		  | /		            | Show server banner                |
-| load		        |	GET		 	    | /config/load		| Load all apps from file           |
-| save		        |	PUT		    	| /config/save		| Save all apps to file             |
+| load		        |	POST	 	    | /config/load		| Load all apps from file           |
+| save		        |	POST	    	| /config/save		| Save all apps to file             |
 | add		          |	POST		    | /apps				    | Add an app to run                 |
 | remove	        |	DELETE	    |	/apps				    | Stop and Remove an app            |
 | start		        | POST		    | /app/start			| Start an app                      |
@@ -142,8 +142,6 @@ TODOs (commands)
 -----
 Theses commands actually doesn't work
              
-	* load
-	* save
 	* remove
 	* monit
 	* get
