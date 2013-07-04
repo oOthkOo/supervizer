@@ -27,7 +27,7 @@ To install node supervizer module from npm repository :
 ```
 Or from source:
 ``` sh
-  git clone git://github.com/mikeal/request.git 
+  git clone git://github.com/oOthkOo/supervizer.git 
   cd request
   npm link -g
 ```
