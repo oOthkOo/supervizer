@@ -28,7 +28,7 @@ To install node supervizer module from npm repository :
 Or from source:
 ``` sh
   git clone git://github.com/oOthkOo/supervizer.git 
-  cd request
+  cd supervizer
   npm link -g
 ```
 
@@ -83,6 +83,7 @@ Usage
 
     help <command>     print required/allowed options for each command.
     install            install supervizer as daemon
+    uninstall          uninstall supervizer as daemon
     load               load from a process configuration json file
     save               save to a process configuration json file
     add                add a node process
@@ -96,8 +97,8 @@ Usage
     list               list all node process
     monit              monitor all node process
     set <name>         setting process property value
-    get <name> <param> getting process property value
-    uninstall          uninstall supervizer daemon
+    get <name>         getting process properties values
+    *                 
 
   Options:
 
@@ -119,7 +120,7 @@ Usage
     -h --host <address>           specify address to bind
     -p --port <port>              specify port to bind
     -a --auth <user:password>     specify user/password to use
-    -c --config <file>            specify config file to load
+    -c --config <file>            specify config file to load/save
 ```
 
 API endpoints
