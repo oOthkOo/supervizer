@@ -155,5 +155,5 @@ Theses options actually doesn't work
 	* interval
 	* exclude
 	* auth
-	* config
+	
 
