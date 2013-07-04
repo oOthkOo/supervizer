@@ -93,6 +93,7 @@ function getAppPattern() {
 		gid: commander.run ? commander.run.split(':')[1] : '',
 		script: commander.script || '',
 		created: new Date().getTime(),
+		started: new Date().getTime(),
 		watch: {			
 			enabled: commander.watch ? true : false,
 			interval: commander.interval || 2000,
@@ -140,9 +141,9 @@ function listFormat( type, value ) {
 		case 'script':
 			return value ? path.basename(value) : 'N/C';
 		case 'memory':
-			return value ? getHumanBytes( value ) : 'N/C';
+			return value ? getHumanBytes(value) : 'N/C';
 		case 'uptime':
-			return value || 'N/C';
+			return value ? getHumanPeriod(value) : 'N/C';
 		case 'pid':
 			return value || 'N/C';
 		case 'host':
@@ -165,8 +166,8 @@ function showAppList( apps ) {
 	}
 	
 	var table = new Table({
-	    head: ['id', 'name', 'pid','script', 'group', 'status', 'host', 'port', 'mem', 'uptime'],
-	    colWidths: [5, 15, 8, 15, 10, 8, 15, 9, 8, 8]
+	    head: ['id', 'name', 'pid','script', 'group', 'status', 'host', 'port', 'uptime'],
+	    colWidths: [5, 15, 8, 15, 10, 8, 15, 9, 12]
 	    
 	});
 	
@@ -181,8 +182,7 @@ function showAppList( apps ) {
 		     listFormat('status', app.status),
 		     listFormat('host', app.host),
 		     listFormat('port', app.port),
-		     listFormat('memory', app.stats.memory),
-		     listFormat('uptime', app.stats.uptime)
+		     listFormat('uptime', app.started)
 		]);
 	}
 
@@ -213,6 +213,44 @@ function getHumanBytes(bytes, precision) {
 	else {
 	    return bytes + ' B';
 	}
+};
+
+function getHumanPeriod( time ) {
+	var millisecond = 1000;
+	var second = millisecond * 60;
+	var minute = second * 60;
+	var hour = minute * 60;
+	var day = hour * 24;
+	
+	var curTime = new Date().getTime();
+	var resultTime = Math.max(curTime - time,0);
+	var d, h, m, s, ms;
+	var result = '';
+
+	d = Math.round(resultTime / day);
+	if (d > 0) {
+		resultTime = resultTime % day;
+	}
+	h = Math.round(resultTime / hour);
+	if (h > 0) {
+		resultTime = resultTime % hour;
+	}
+	m = Math.round(resultTime / minute);
+	if (m > 0) {
+		resultTime = resultTime % minute;
+	}
+	s = Math.round(resultTime / second);
+	ms = resultTime % millisecond;
+
+	if (d > 0) { result += d + 'd '; }
+	if (h > 0) { result += h + 'h '; }
+	if (m > 0) { result += m + 'm '; }
+	if (s > 0) { result += s + 's '; }
+	if (ms > 0) { result += ms + 'ms'; }
+
+	console.log( 'd:'+d+'h:'+h+'m:'+m+'s:'+s+'ms:'+ms );
+
+	return result;
 };
 
 function getCommandOptions() {
