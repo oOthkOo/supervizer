@@ -191,5 +191,5 @@ process.on('close', function(code) {
 	main.showInfo('Supervizer server stopped.');
 });
 
-server.listen(common.settings.port);
+server.listen(common.settings.port,common.settings.host);
 main.showInfo('Supervizer server started.');

@@ -17,14 +17,10 @@ var request = require('request');
  * Setting all modules
  */
 
-/*request.defaults( {
-	json: true
-});*/
-
 /**
  * Settings all global variables
  */
-var serverHost = common.settings.host + ':' + common.settings.port + '/';
+var serverHost = 'http://' + common.settings.host + ':' + common.settings.port + '/';
 
 /**
  * All private functions
@@ -180,7 +176,7 @@ function showAppList( apps ) {
 		     listFormat('id', app.id),
 		     listFormat('name', app.name),
 		     listFormat('pid', app.pid),
-		     listFormat('run', app.uid + ':' + app.gid),
+		     listFormat('run', app.suid + ':' + app.sgid),
 		     listFormat('script', app.script),
 		     listFormat('group', app.group),
 		     listFormat('status', app.status),

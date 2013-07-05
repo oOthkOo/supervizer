@@ -1,7 +1,7 @@
 {
   "name": "supervizer",
   "preferGlobal": "true",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "engines" : {
     "node" : ">=0.8"
   },
@@ -28,7 +28,8 @@
     "cluster"
   ],
   "bin": {
-    "supervizer": "./bin/supervizer"
+    "supervizer": "./bin/supervizer",
+    "supervizer-server": "./bin/server"
   },
   "dependencies": {
     "commander": "1.1.0",

@@ -1,7 +1,6 @@
 {
-	"host": "http://localhost",
+	"host": "localhost",
 	"port": 8200,	
-	"logLevel": "DEBUG",
 	"auth" : {
 		"user": "admin",
 		"password": "123456"
