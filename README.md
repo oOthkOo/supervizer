@@ -114,7 +114,6 @@ Usage
     -k --keep <yes/no>            keep alive app (default:yes)
     -t --attempt <number>         max restart to keep alive (default:3)
     -w --watch <path>             specify path to watch
-    -i --interval <milliseconds>  specify interval in milliseconds for watch
     -e --exclude <path>           specify path to exclude
     -h --host <address>           specify address to bind
     -p --port <port>              specify port to bind
@@ -148,17 +147,17 @@ TODOs (commands)
 -----
 Theses commands actually doesn't work
      
-    * help        
+    * help
+    * install
+    * uninstall           
 	* monit
 	
  TODOs (options)
 -----
 Theses options actually doesn't work
-
+	
 	* force
-	* watch
-	* interval
-	* exclude
+	* run
 	* auth
 	
 

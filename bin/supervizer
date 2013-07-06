@@ -93,8 +93,6 @@ function getAppPattern() {
 		created: new Date().getTime(),
 		started: '',
 		watch: {			
-			enabled: commander.watch ? true : false,
-			interval: commander.interval || 2000,
 			path: commander.watch || '',
 			excludes: commander.exclude || []
 		},
@@ -210,13 +208,13 @@ function showAppProperties( app ) {
 	console.log('[pid]: ' + app.pid);
 	console.log('[uptime]: ' + (app.started > 0 ? getHumanPeriod(app.started) : ''));
 	console.log('[script]: ' + app.script);
-	console.log('[watch]: ' + (app.watch.enabled ? 'yes' : 'no'));
+	console.log('[watch]: ' + (app.watch.path != '' ? 'yes' : 'no'));
 	if (app.watch && app.watch.enabled) {		
-		console.log('[watch.interval]: ' + app.watch.interval);
 		console.log('[watch.path]: ' + app.watch.path);
 		if (app.watch.excludes) {
 			for (var e=0; e<app.watch.excludes.length; e++) {
-				console.log('[watch.exclude-' + e + ']: ' + app.watch.path);
+				var exclude = app.watch.excludes[e];
+				console.log('[watch.exclude-' + e + ']: ' + exclude);
 			}
 		}
 	}
@@ -364,14 +362,9 @@ function getCommandOptions() {
 			watch: commander.watch
 		});
 	}
-	if (typeof commander.interval != 'undefined') {
-		options.push({ 
-			interval: commander.interval
-		});
-	}
 	if (typeof commander.exclude != 'undefined') {
 		options.push({ 
-			excludes: commander.excludes
+			excludes: commander.exclude.split(',')
 		});
 	}
 	if (typeof commander.port != 'undefined') {
@@ -410,8 +403,7 @@ commander.version(common.pkg.version)
 	.option('-k --keep <yes/no>', 'keep alive app (default:yes)')
 	.option('-t --attempt <number>', 'max restart to keep alive (default:3)')
 	.option('-w --watch <path>', 'specify path to watch')
-	.option('-i --interval <milliseconds>', 'specify interval in milliseconds for watch')
-	.option('-e --exclude <path>', 'specify path to exclude')
+	.option('-e --exclude <regex,regex>', 'specify regexes to exclude paths')
 	.option('-h --host <address>', 'specify address to bind')
 	.option('-p --port <port>', 'specify port to bind')
 	.option('-a --auth <user:password>', 'specify user/password to use')

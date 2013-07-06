@@ -32,10 +32,11 @@
     "supervizer-server": "./bin/server"
   },
   "dependencies": {
-    "commander": "1.1.0",
+    "commander": "1.2.0",
     "cli-table" : "0.0.1",
     "express": "3.3.1",
-    "request": "*"
+    "chokidar": "0.6.2",
+    "request": "2.22.0"
   },
   "devDependencies": {
     "mocha": "1.x",
