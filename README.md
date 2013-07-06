@@ -77,48 +77,48 @@ console.log('Listening on port ' + port);
 Usage
 -----
 ``` sh
-  supervizer.js [command] <options>
+  supervizer [command] <options>
 
   Commands:
 
-    help <command>     print required/allowed options for each command.
-    install            install supervizer as daemon
-    uninstall          uninstall supervizer as daemon
-    load               load from a process configuration json file
-    save               save to a process configuration json file
-    add                add a node process
-    remove             remove a node process
-    start              start a new node process
-    startAll           start all node process
-    stop               stop a node process
-    stopAll            stop all node process
-    restart            restart a node process
-    restartAll         restart all node process
-    list               list all node process
-    monit              monitor all node process
-    set <name>         setting process property value
-    get <name>         getting process properties values
+    help <command>         print required/allowed options for each command.
+    install                install supervizer as daemon
+    uninstall              uninstall supervizer as daemon
+    load                   load from a process configuration json file
+    save                   save to a process configuration json file
+    add                    add a node process
+    remove                 remove a node process
+    start                  start a new node process
+    startAll               start all node process
+    stop                   stop a node process
+    stopAll                stop all node process
+    restart                restart a node process
+    restartAll             restart all node process
+    list                   list all node process
+    monit                  monitor all node process
+    set <name>             setting process property value
+    get <name>             getting process properties values
 
   Options:
 
-    -h, --help                    output usage information
-    -V, --version                 output the version number
-    -v --verbose                  display verbose data
-    -f --force                    force supervizer actions
-    -n --name <string>            specify app name
-    -r --run <user:group>         specify user to run app
-    -g --group <string>           specify app group
-    -s --script <path>            specify app main script
-    -l --log <file>               specify app log output file
-    -t --pid <file>               specify app pid file
-    -k --keep <yes/no>            keep alive app (default:yes)
-    -t --attempt <number>         max restart to keep alive (default:3)
-    -w --watch <path>             specify path to watch
-    -e --exclude <path>           specify path to exclude
-    -h --host <address>           specify address to bind
-    -p --port <port>              specify port to bind
-    -a --auth <user:password>     specify user/password to use
-    -c --config <file>            specify config file to load/save
+    -h, --help                  output usage information
+    -V, --version               output the version number
+    -v --verbose                display verbose data
+    -f --force                  force supervizer actions
+    -n --name <string>          specify app name
+    -r --run <user:group>       specify user to run app
+    -g --group <string>         specify app group
+    -s --script <path>          specify app main script
+    -l --log <file>             specify app log output file
+    -t --pid <file>             specify app pid file
+    -k --keep <yes/no>          keep alive app (default:yes)
+    -t --attempt <number>       max restart to keep alive (default:3)
+    -w --watch <path>           specify path to watch
+    -e --exclude <regex,regex>  specify regexes to exclude paths
+    -h --host <address>         specify address to bind
+    -p --port <port>            specify port to bind
+    -a --auth <user:password>   specify user/password to use
+    -c --config <file>          specify config file to load/save
 ```
 
 API endpoints
