@@ -1,3 +1,4 @@
 node_modules/
+.project
 .settings
 bin/apps.json
