@@ -31,14 +31,17 @@ Or from source:
   cd supervizer
   npm link -g
 ```
+And run this command to start supervizer master server :
 
+``` sh
+  supervizer-server
+```
 Installation (master)
 -----
-To install supervizer master daemon, you must run this command as root :
+To install supervizer master as daemon, you must run this command as root :
 ``` sh
   sudo supervizer --install
 ```
-
 Configuration (apps)
 -----
 To make your process compatible with Supervizer, you must follow this code example to retrieve host and port parameters :
