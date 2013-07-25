@@ -12,6 +12,8 @@ var path = require('path');
 var Table = require('cli-table');
 var commander = require('commander');
 var request = require('request');
+var color = require('cli-color');
+var os = require('os');
 
 /**
  * Setting all modules
@@ -198,8 +200,8 @@ function showAppProperties( app ) {
 	
 	console.log('[name]: ' + app.name);
 	console.log('[group]: ' + app.group);
-	console.log('[uid]: ' + app.suid);
-	console.log('[gid]: ' + app.sgid);
+	console.log('[uid]: (' + (app.suid != '' ? app.suid : 'N/C' ) + ':' + app.uid + ')');
+	console.log('[gid]: (' + (app.sgid != '' ? app.sgid : 'N/C' ) + ':' + app.gid + ')');
 	console.log('[status]: ' + app.status);
 	console.log('[host]: ' + app.host);
 	console.log('[port]: ' + app.port);
@@ -235,11 +237,95 @@ function showAppProperties( app ) {
 	console.log('[stats.memory]: ' + getHumanBytes(app.stats.memory));
 }
 
+function padding( text, count, char ) {	
+	for (var i=0; i<count; i++) {
+		text += char;
+	}
+	return text;
+}
+
+function getPercent( value, total, text, cleft, cright ) {
+	
+	text = padding( text, 8-text.length, ' ');	
+	var percent = Math.round(Math.min((value / total) * 100,100) / 3.33);
+	
+	//console.log( percent );
+	
+	var gauge = '';
+	for (var i=1; i<31; i++) {
+		if (i <= percent) {
+			gauge += cleft;			
+		}
+		else {
+			gauge += cright;
+		}
+	}
+	
+	return '[' + gauge + '] ' + text;
+}
+
+function monitApp( stat ) {
+	
+	/*name: app.name,
+			pid: app.pid,
+			cpu: app.stats.cpu,
+			mem: app.stats.memory*/
+	
+	console.log('  '+stat.name);
+	
+	var cpu = getPercent(stat.cpu, 100, stat.cpu + ' %', color.bgRedBright(' '), color.bgBlack(' '));	
+	var mem = getPercent(stat.mem, os.totalmem(), getHumanBytes(stat.mem), color.bgGreenBright(' '), color.bgBlack(' '));
+	var pid = stat.pid != '' ?	stat.pid : 'N/C';
+	
+	console.log('    - CPU: ' + cpu + ' MEM: ' + mem + ' PID: ' + pid  );	
+}
+
 function monitAppList( stats ) {
 	
-	//console.log('\033[0m');
+	console.log(color.reset);
 	
-	//console.log('updated.');
+	process.stdout.write(color.moveTo(1,1));
+	console.log(color.bold('[* Supervizer *] v' + common.pkg.version + ' - ' + stats.length + ' app(s).'));
+	console.log();
+	
+	for (var s=0; s<stats.length; s++) {
+		monitApp( stats[s] );		
+	}
+	
+	console.log();
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }
 
 function getHumanBytes(bytes, precision) {

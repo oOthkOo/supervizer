@@ -4,6 +4,8 @@ A NodeJS daemon process manager to spawn/start/stop node app .
 
 ![List command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-list.png)
 
+![Monit command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-monit.png)
+
 Features
 -----
  * Start/Stop/Restart a node process
@@ -124,6 +126,8 @@ Usage
     -c --config <file>          specify config file to load/save
 ```
 
+![Get command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-get.png)
+
 API endpoints
 -----
 Supervizer daemon has an RESTfull http interface wich allow you to control it remotely ;-)
@@ -152,8 +156,7 @@ Theses commands actually doesn't work
      
     * help
     * install
-    * uninstall           
-	* monit
+    * uninstall
 	
  TODOs (options)
 -----
