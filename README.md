@@ -78,8 +78,38 @@ var port = process.argv[3] || '5000';
 server.listen(port,host);
 console.log('Listening on port ' + port);
 ```
-
-Usage
+Usage (Summary)
+-----
+Add your app :
+``` sh
+  supervizer add --name myApp --group myGroup --script /path/to/script.js \
+  --host localhost --port 3000 --watch /path/to/watch --log /path/to/logfile.log
+```
+Start your app
+``` sh
+  supervizer start --name myApp
+```
+Stop your app
+``` sh
+  supervizer stop --name myApp
+```
+Update your app
+``` sh
+  supervizer set myApp --port 3001
+```
+Save all your apps
+``` sh
+  supervizer save --config /path/to/apps.json
+```
+Load your apps
+``` sh
+  supervizer load --config /path/to/apps.json
+```
+Start all your apps
+``` sh
+  supervizer startAll
+```
+Usage (Complete)
 -----
 ``` sh
   supervizer [command] <options>
