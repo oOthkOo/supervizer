@@ -85,30 +85,36 @@ Add your app :
   supervizer add --name myApp --group myGroup --script /path/to/script.js \
   --host localhost --port 3000 --watch /path/to/watch --log /path/to/logfile.log
 ```
-Start your app
+Start your app :
 ``` sh
   supervizer start --name myApp
 ```
-Stop your app
+Stop your app :
 ``` sh
   supervizer stop --name myApp
 ```
-Update your app
+Update your app :
 ``` sh
   supervizer set myApp --port 3001
 ```
-Save all your apps
+Save all your apps :
 ``` sh
   supervizer save --config /path/to/apps.json
 ```
-Load your apps
+Load your apps :
 ``` sh
   supervizer load --config /path/to/apps.json
 ```
-Start all your apps
+Start all your apps :
 ``` sh
-  supervizer startAll
+  supervizer startAll  
 ```
+Get all stats about your app :
+
+``` sh
+  supervizer get myApp
+```
+![Get command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-get.png)
 Usage (Complete)
 -----
 ``` sh
@@ -155,8 +161,6 @@ Usage (Complete)
     -a --auth <user:password>   specify user/password to use
     -c --config <file>          specify config file to load/save
 ```
-
-![Get command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-get.png)
 
 API endpoints
 -----
