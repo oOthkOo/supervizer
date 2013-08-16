@@ -2,9 +2,18 @@ Supervizer ![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png)
 ========================
 A NodeJS daemon process manager to spawn/start/stop node app .
 
+``` sh
+  supervizer list
+```
 ![List command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-list.png)
-
+``` sh
+  supervizer monit
+```
 ![Monit command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-monit.png)
+``` sh
+  supervizer get myApp
+```
+![Get command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-get.png)
 
 Features
 -----
@@ -82,7 +91,7 @@ Usage (Summary)
 -----
 Add your app :
 ``` sh
-  supervizer add --name myApp --group myGroup --script /path/to/script.js \
+  supervizer add --name myApp --group myGroup --script /path/to/script.js 
   --host localhost --port 3000 --watch /path/to/watch --log /path/to/logfile.log
 ```
 Start your app :
@@ -109,12 +118,6 @@ Start all your apps :
 ``` sh
   supervizer startAll  
 ```
-Get all stats about your app :
-
-``` sh
-  supervizer get myApp
-```
-![Get command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-get.png)
 Usage (Complete)
 -----
 ``` sh
