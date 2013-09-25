@@ -1,5 +1,7 @@
 Supervizer ![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png)
 ========================
+[![NPM](https://nodei.co/npm/supervizer.png?downloads=true)](https://nodei.co/npm/supervizer/)
+
 A NodeJS daemon process manager to spawn/start/stop node app .
 
 ``` sh
