@@ -1,10 +1,21 @@
 Supervizer ![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png)
 ========================
+[![NPM](https://nodei.co/npm/supervizer.png?downloads=true)](https://nodei.co/npm/supervizer/)
+
 A NodeJS daemon process manager to spawn/start/stop node app .
 
+``` sh
+  supervizer list
+```
 ![List command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-list.png)
-
+``` sh
+  supervizer monit
+```
 ![Monit command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-monit.png)
+``` sh
+  supervizer get myApp
+```
+![Get command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-get.png)
 
 Features
 -----
@@ -82,32 +93,32 @@ Usage (Summary)
 -----
 Add your app :
 ``` sh
-  supervizer add --name myApp --group myGroup --script /path/to/script.js \
+  supervizer add --name myApp --group myGroup --script /path/to/script.js 
   --host localhost --port 3000 --watch /path/to/watch --log /path/to/logfile.log
 ```
-Start your app
+Start your app :
 ``` sh
   supervizer start --name myApp
 ```
-Stop your app
+Stop your app :
 ``` sh
   supervizer stop --name myApp
 ```
-Update your app
+Update your app :
 ``` sh
   supervizer set myApp --port 3001
 ```
-Save all your apps
+Save all your apps :
 ``` sh
   supervizer save --config /path/to/apps.json
 ```
-Load your apps
+Load your apps :
 ``` sh
   supervizer load --config /path/to/apps.json
 ```
-Start all your apps
+Start all your apps :
 ``` sh
-  supervizer startAll
+  supervizer startAll  
 ```
 Usage (Complete)
 -----
@@ -155,8 +166,6 @@ Usage (Complete)
     -a --auth <user:password>   specify user/password to use
     -c --config <file>          specify config file to load/save
 ```
-
-![Get command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-get.png)
 
 API endpoints
 -----
