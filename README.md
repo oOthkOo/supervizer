@@ -152,7 +152,7 @@ Usage (Complete)
     -v --verbose                display verbose data
     -f --force                  force supervizer actions
     -n --name <string>          specify app name
-    -r --run <user:group>       specify user to run app
+    -r --run <user:group>       specify user uid:gid to run app
     -g --group <string>         specify app group
     -s --script <path>          specify app main script
     -l --log <file>             specify app log output file
@@ -202,7 +202,6 @@ Theses commands actually doesn't work
 Theses options actually doesn't work
 	
 	* force
-	* run
 	* auth
 	
 

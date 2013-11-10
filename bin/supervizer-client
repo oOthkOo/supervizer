@@ -87,10 +87,8 @@ function getAppPattern() {
 		id: '',
 		name: commander.name || '',
 		group: commander.group || 'main',
-		uid: 0,
-		suid: commander.run ? commander.run.split(':')[0] : '',
-		gid: 0,
-		sgid: commander.run ? commander.run.split(':')[1] : '',				
+		uid: commander.run ? commander.run.split(':')[0] : '',
+		gid: commander.run ? commander.run.split(':')[1] : '',				
 		script: commander.script || '',
 		created: new Date().getTime(),
 		started: '',
@@ -176,7 +174,7 @@ function showAppList( apps ) {
 		     listFormat('id', app.id),
 		     listFormat('name', app.name),
 		     listFormat('pid', app.pid),
-		     listFormat('run', app.suid + ':' + app.sgid),
+		     listFormat('run', app.uid + ':' + app.gid),
 		     listFormat('script', app.script),
 		     listFormat('group', app.group),
 		     listFormat('status', app.status),
@@ -198,21 +196,21 @@ function getDateValue( timestamp ) {
 
 function showAppProperties( app ) {
 	
-	console.log('[name]: ' + app.name);
-	console.log('[group]: ' + app.group);
-	console.log('[uid]: (' + (app.suid != '' ? app.suid : 'N/C' ) + ':' + app.uid + ')');
-	console.log('[gid]: (' + (app.sgid != '' ? app.sgid : 'N/C' ) + ':' + app.gid + ')');
-	console.log('[status]: ' + app.status);
-	console.log('[host]: ' + app.host);
-	console.log('[port]: ' + app.port);
-	console.log('[created]: ' + getDateValue( app.created ));
-	console.log('[started]: ' + getDateValue( app.started ));
-	console.log('[pid]: ' + app.pid);
-	console.log('[uptime]: ' + (app.started > 0 ? getHumanPeriod(app.started) : ''));
-	console.log('[script]: ' + app.script);
-	console.log('[watch]: ' + (app.watch.path != '' ? 'yes' : 'no'));
+	console.log('[name           ]: ' + app.name);
+	console.log('[group          ]: ' + app.group);
+	console.log('[uid            ]: ' + (app.uid != '' ? app.uid : 'N/C' ) );
+	console.log('[gid            ]: ' + (app.gid != '' ? app.gid : 'N/C' ) );
+	console.log('[status         ]: ' + app.status);
+	console.log('[host           ]: ' + app.host);
+	console.log('[port           ]: ' + app.port);
+	console.log('[created        ]: ' + getDateValue( app.created ));
+	console.log('[started        ]: ' + getDateValue( app.started ));
+	console.log('[pid            ]: ' + app.pid);
+	console.log('[uptime         ]: ' + (app.started > 0 ? getHumanPeriod(app.started) : ''));
+	console.log('[script         ]: ' + app.script);
+	console.log('[watch          ]: ' + (app.watch.path != '' ? 'yes' : 'no'));
 	if (app.watch && app.watch.enabled) {		
-		console.log('[watch.path]: ' + app.watch.path);
+		console.log('[watch.path     ]: ' + app.watch.path);
 		if (app.watch.excludes) {
 			for (var e=0; e<app.watch.excludes.length; e++) {
 				var exclude = app.watch.excludes[e];
@@ -220,21 +218,21 @@ function showAppProperties( app ) {
 			}
 		}
 	}
-	console.log('[keep]: ' + (app.keep ? 'yes' : 'no'));
+	console.log('[keep           ]: ' + (app.keep ? 'yes' : 'no'));
 	if (app.keep) {		
 		console.log('[keep.attempt]: ' + app.curAttempt);
-		console.log('[keep.max]: ' + app.attempt);
+		console.log('[keep.max    ]: ' + app.attempt);
 	}	
 	if (app.files) {
-		console.log('[log.file]: ' + app.files.log);
-		console.log('[pid.file]: ' + app.files.pid);
+		console.log('[log.file       ]: ' + (app.files.log || 'N/C'));
+		console.log('[pid.file       ]: ' + (app.files.pid || 'N/C'));
 	}
-	console.log('[stats.started]: ' + app.stats.started);
-	console.log('[stats.crashed]: ' + app.stats.crashed);
-	console.log('[stats.stopped]: ' + app.stats.stopped);
+	console.log('[stats.started  ]: ' + app.stats.started);
+	console.log('[stats.crashed  ]: ' + app.stats.crashed);
+	console.log('[stats.stopped  ]: ' + app.stats.stopped);
 	console.log('[stats.restarted]: ' + app.stats.restarted);
-	console.log('[stats.cpu]: ' + app.stats.cpu + ' %');
-	console.log('[stats.memory]: ' + getHumanBytes(app.stats.memory));
+	console.log('[stats.cpu      ]: ' + app.stats.cpu + ' %');
+	console.log('[stats.memory   ]: ' + getHumanBytes(app.stats.memory));
 }
 
 function padding( text, count, char ) {	
@@ -338,10 +336,18 @@ function getHumanPeriod( time ) {
 	}
 	s = Math.round(resultTime / second);	
 
-	if (d > 0) { result += d + 'd '; }
-	if (h > 0) { result += h + 'h '; }
-	if (m > 0) { result += m + 'm '; }
-	if (s > 0) { result += s + 's'; }
+	if (d > 0) {
+		result += d + 'd ';
+	}
+	if (h > 0) {
+		result += h + 'h ';
+	}
+	if (m > 0) {
+		result += m + 'm ';
+	}
+	if (s > 0) { 
+		result += s + 's';
+	}
 
 	return result;
 };
@@ -439,7 +445,7 @@ commander.version(common.pkg.version)
 	.option('-v --verbose', 'display verbose data')
 	.option('-f --force', 'force supervizer actions')
 	.option('-n --name <string>', 'specify app name')
-	.option('-r --run <user:group>', 'specify user to run app')
+	.option('-r --run <user:group>', 'specify user uid:gid to run app')
 	.option('-g --group <string>', 'specify app group')
 	.option('-s --script <path>', 'specify app main script')
 	.option('-l --log <file>', 'specify app log output file')
@@ -481,11 +487,11 @@ commander.command('uninstall')
 });
 
 commander.command('load')
-	.description('load from a process configuration json file')
+	.description('load from a process configuration JSON file')
 	.action(function() {
 		
 		var data = {
-				file: commander.config || common.settings.apps
+			file: commander.config || common.settings.apps
 		}
 		var params = getRequestParams( 'config/load', JSON.stringify(data) );
 		
@@ -506,7 +512,7 @@ commander.command('load')
 });
 
 commander.command('save')
-	.description('save to a process configuration json file')
+	.description('save to a process configuration JSON file')
 	.action(function() {
 		
 		var data = {
