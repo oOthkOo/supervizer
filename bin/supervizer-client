@@ -173,14 +173,14 @@ function showAppList( apps ) {
 		table.push([
 		     listFormat('id', app.id),
 		     listFormat('name', app.name),
-		     listFormat('pid', app.pid),
+		     listFormat('pid', app.status == 'online' ? app.pid : null),
 		     listFormat('run', app.uid + ':' + app.gid),
 		     listFormat('script', app.script),
 		     listFormat('group', app.group),
 		     listFormat('status', app.status),
 		     listFormat('host', app.host),
 		     listFormat('port', app.port),
-		     listFormat('uptime', app.started)
+		     listFormat('uptime', app.status == 'online' ? app.started : null)
 		]);
 	}
 
@@ -220,8 +220,8 @@ function showAppProperties( app ) {
 	}
 	console.log('[keep           ]: ' + (app.keep ? 'yes' : 'no'));
 	if (app.keep) {		
-		console.log('[keep.attempt]: ' + app.curAttempt);
-		console.log('[keep.max    ]: ' + app.attempt);
+		console.log('[keep.attempt   ]: ' + app.curAttempt);
+		console.log('[keep.max       ]: ' + app.attempt);
 	}	
 	if (app.files) {
 		console.log('[log.file       ]: ' + (app.files.log || 'N/C'));
