@@ -34,7 +34,7 @@
   "dependencies": {
     "commander": "1.2.0",
     "cli-table" : "0.0.1",
-    "cli-color" : "*",
+    "cli-color" : "0.2.3",
     "usage": "0.3.7",
     "express": "3.3.1",
     "request": "2.22.0",
