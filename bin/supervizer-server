@@ -179,17 +179,18 @@ server.post('/apps/monit', function(req, res) {
 });
 
 server.get('*', function(req, res) {
-  	res.send('Not Found!', 404);
+  	res.send('NotFound Server Error', 404);
 });
 
 server.use(function(err, req, res, next) {  	
-  	res.send('Something broke!', 500);
+  	res.send('Internal Server Error', 500);
+  	main.showError('A fatal error occured');
 	console.error(err.stack);
 });
 
 process.on('close', function(code) {
-	main.showInfo('Supervizer server stopped.');
+	main.showInfo('Supervizer server stopped');
 });
 
 server.listen(common.settings.port,common.settings.host);
-main.showInfo('Supervizer server started.');
+main.showInfo('Supervizer Server started at ' + common.settings.host + ':' + common.settings.port);

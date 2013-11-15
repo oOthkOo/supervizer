@@ -6,5 +6,5 @@
 		"password": "123456"
 	},
 	"apps": "apps.json",
-	"bin": "/usr/bin/node"	
+	"bin": "node"	
 }
