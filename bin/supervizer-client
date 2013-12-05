@@ -92,9 +92,10 @@ function getAppPattern() {
 		script: commander.script || '',
 		created: new Date().getTime(),
 		started: '',
-		watch: {			
+		watch: {
+			enabled: commander.watch ? true : false,	
 			path: commander.watch || '',
-			excludes: commander.exclude || []
+			excludes: commander.exclude ? commander.exclude.split(',') : []
 		},
 		timer: null,
 		stopped: false,
@@ -208,8 +209,8 @@ function showAppProperties( app ) {
 	console.log('[pid            ]: ' + app.pid);
 	console.log('[uptime         ]: ' + (app.started > 0 ? getHumanPeriod(app.started) : ''));
 	console.log('[script         ]: ' + app.script);
-	console.log('[watch          ]: ' + (app.watch.path != '' ? 'yes' : 'no'));
-	if (app.watch && app.watch.enabled) {		
+	console.log('[watch          ]: ' + (app.watch.enabled != '' ? 'yes' : 'no'));
+	if (app.watch.enabled) {		
 		console.log('[watch.path     ]: ' + app.watch.path);
 		if (app.watch.excludes) {
 			for (var e=0; e<app.watch.excludes.length; e++) {
@@ -409,7 +410,7 @@ function getCommandOptions() {
 	}
 	if (typeof commander.watch != 'undefined') {
 		options.push({ 
-			watch: commander.watch
+			watch: commander.watch			
 		});
 	}
 	if (typeof commander.exclude != 'undefined') {
