@@ -286,6 +286,8 @@ function monitAppList( stats ) {
 }
 
 function getHumanBytes(bytes, precision) {
+	//console.log('bytes', bytes)
+
 	var kilobyte = 1024;
 	var megabyte = kilobyte * 1024;
 	var gigabyte = megabyte * 1024;
