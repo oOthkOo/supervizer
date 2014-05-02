@@ -1,14 +1,14 @@
 {
   "name": "supervizer",
   "preferGlobal": "true",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "engines" : {
     "node" : ">=0.8"
   },
   "author": {
     "name": "Tierry Danquin",
     "email": "tierry.danquin@gmail.com",
-    "url": "http://www.thkware.com"
+    "url": "http://www.oothkoo.com"
   },  
   "homepage" : "https://github.com/oOthkOo/supervizer",
   "description": "NodeJS process management",

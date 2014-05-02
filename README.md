@@ -152,6 +152,8 @@ Usage (Complete)
     -v --verbose                display verbose data
     -f --force                  force supervizer actions
     -n --name <string>          specify app name
+    -z --env <string>           specify comma separated environment variables
+    -x --params <string>        specify node command line extra parameters
     -r --run <user:group>       specify user uid:gid to run app
     -g --group <string>         specify app group
     -s --script <path>          specify app main script

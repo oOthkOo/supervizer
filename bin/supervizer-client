@@ -90,6 +90,8 @@ function getAppPattern() {
 		uid: commander.run ? commander.run.split(':')[0] : '',
 		gid: commander.run ? commander.run.split(':')[1] : '',				
 		script: commander.script || '',
+		env: commander.env || '',
+		params: commander.params || '',
 		created: new Date().getTime(),
 		started: '',
 		watch: {
@@ -165,7 +167,17 @@ function showAppList( apps ) {
 	}
 	
 	var table = new Table({
-	    head: ['id', 'name', 'pid', 'user', 'script', 'group', 'status', 'host', 'port', 'uptime'],
+	    head: [
+	    	'id',
+	    	'name',
+	    	'pid',
+	    	'user',
+	    	'script',
+	    	'group',
+	    	'status',
+	    	'host',
+	    	'port',
+	    	'uptime'],
 	    colWidths: [5, 15, 8, 15, 15, 10, 8, 15, 9, 12]	    
 	});
 	
@@ -196,7 +208,7 @@ function getDateValue( timestamp ) {
 }
 
 function showAppProperties( app ) {
-	
+
 	console.log('[name           ]: ' + app.name);
 	console.log('[group          ]: ' + app.group);
 	console.log('[uid            ]: ' + (app.uid != '' ? app.uid : 'N/C' ) );
@@ -209,6 +221,8 @@ function showAppProperties( app ) {
 	console.log('[pid            ]: ' + app.pid);
 	console.log('[uptime         ]: ' + (app.started > 0 ? getHumanPeriod(app.started) : ''));
 	console.log('[script         ]: ' + app.script);
+	console.log('[params         ]: ' + app.params);
+	console.log('[env            ]: ' + (app.env != '' ? app.env.join(',') : '' ) );
 	console.log('[watch          ]: ' + (app.watch.enabled != '' ? 'yes' : 'no'));
 	if (app.watch.enabled) {		
 		console.log('[watch.path     ]: ' + app.watch.path);
@@ -367,6 +381,16 @@ function getCommandOptions() {
 			name: commander.name
 		});
 	}
+	if (typeof commander.env != 'undefined') {
+		options.push({ 
+			env: commander.env
+		});
+	}
+	if (typeof commander.params != 'undefined') {
+		options.push({ 
+			params: commander.params
+		});
+	}
 	if (typeof commander.run != 'undefined') {
 		options.push({ 
 			run: {
@@ -448,6 +472,10 @@ commander.version(common.pkg.version)
 	.option('-v --verbose', 'display verbose data')
 	.option('-f --force', 'force supervizer actions')
 	.option('-n --name <string>', 'specify app name')
+	.option('-z --env <string>', 'specify comma separated environment variables', function (value) {
+  		return value.split(',')
+  	})
+	.option('-x --params <string>', 'specify node command line extra parameters')
 	.option('-r --run <user:group>', 'specify user uid:gid to run app')
 	.option('-g --group <string>', 'specify app group')
 	.option('-s --script <path>', 'specify app main script')
