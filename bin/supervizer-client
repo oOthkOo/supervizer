@@ -82,7 +82,15 @@ function isQueryValid(error, response, body) {
 	return query;
 }
 
-function getAppPattern() {	
+function getEnvs() {
+    var envs = {};
+    (commander.environment || '').split(',').forEach(function(env) {
+        envs[env.split('=')[0]] = env.split('=')[1]
+    });
+    return envs;
+}
+
+function getAppPattern() {
 	return {
 		id: '',
 		name: commander.name || '',
@@ -120,7 +128,8 @@ function getAppPattern() {
 			restarted: 0,
 			memory: 0,
 			cpu: 0
-		}
+		},
+        env : getEnvs()
 	}
 }
 
@@ -461,6 +470,7 @@ commander.version(common.pkg.version)
 	.option('-p --port <port>', 'specify port to bind')
 	.option('-a --auth <user:password>', 'specify user/password to use')
 	.option('-c --config <file>', 'specify config file to load/save')
+    .option('-z --environment <env>', 'specify script environment variables like NODE_ENV')
 	.usage('[command] <options>');
 
 commander.command('help <command>')
