@@ -29,7 +29,8 @@
   ],
   "bin": {
     "supervizer": "./bin/supervizer-client",
-    "supervizer-server": "./bin/supervizer"
+    "supervizer-server": "./bin/supervizer-server",
+    "supervizer-service": "/bin/supervizer-service"
   },
   "dependencies": {
     "commander": "1.2.0",

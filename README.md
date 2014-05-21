@@ -45,10 +45,15 @@ Or from source:
   npm link -g
 ```
 And run this command to start supervizer master server :
-
 ``` sh
-  sudo supervizer-server start
+  supervizer-server
 ```
+
+To start supervizer master server like a service :
+``` sh
+  sudo supervizer-service start
+```
+
 Installation (master)
 -----
 To install supervizer master as daemon, you must run this command as root :
