@@ -2,7 +2,6 @@
 
 ## Fill in name of program here.
 PROG="supervizer-server"
-PROG_PATH="/usr/local/bin" ## Not need, but sometimes helpful (if $PROG resides in /opt for example).
 PID_PATH="/var/run/"
 
 start() {
@@ -12,16 +11,16 @@ start() {
         exit 1
     else
         ## Change from /dev/null to something like /var/log/$PROG if you want to save output.
-            $PROG_PATH/$PROG $PROG_ARGS 2>&1 >/dev/null &
+        $PROG 2>&1 >/dev/null &
+        echo $!>"$PID_PATH/$PROG.pid"
         echo "$PROG started"
-        touch "$PID_PATH/$PROG.pid"
     fi
 }
 
 stop() {
     if [ -e "$PID_PATH/$PROG.pid" ]; then
         ## Program is running, so stop it
-        killall $PROG
+        kill -9 $(<"$PID_PATH/$PROG.pid")
 
         rm "$PID_PATH/$PROG.pid"
         
