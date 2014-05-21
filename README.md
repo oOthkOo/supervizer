@@ -47,7 +47,7 @@ Or from source:
 And run this command to start supervizer master server :
 
 ``` sh
-  supervizer-server
+  sudo supervizer-server start
 ```
 Installation (master)
 -----
