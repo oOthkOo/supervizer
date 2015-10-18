@@ -1,88 +1,320 @@
 #!/usr/bin/env node
 
-const SPZ_SUCCESS_EXIT = 0;
-const SPZ_ERROR_EXIT   = 1;
+const SPZ_SUCCESS_EXIT = 0
+const SPZ_ERROR_EXIT   = 1
 
 /**
  * Require all modules
  */
-var common = require('../lib/common');
-var main = require('../lib/main');
-var path = require('path');
-var Table = require('cli-table');
-var commander = require('commander');
-var request = require('request');
-var color = require('cli-color');
-var os = require('os');
+var common = require('../lib/common')
+var main = require('../lib/main')
+var path = require('path')
+var Table = require('cli-table')
+var commander = require('commander')
+var request = require('request')
+var color = require('cli-color')
+var os = require('os')
 
 /**
  * Setting all modules
  */
 
+var timer = null
+
 /**
  * Settings all global variables
  */
-var serverHost = 'http://' + common.settings.host + ':' + common.settings.port + '/';
+var serverHost = 'http://' + common.settings.host + ':' + common.settings.port + '/'
 
 /**
  * All private functions
  */
-function showError( message ) {
-	console.log('\n\033[31m  [ERROR]: ' + message + '\x1B[39m\n');
+function showError ( message ) {
+	console.log('\n\033[31m  [ERROR]: ' + message + '\x1B[39m\n')
 }
 
-function showHttpError( code ) {
-	var message = '';
+function showHttpError ( code ) {
+	var message = ''
 	switch (code) {
 		case 500:
-			message = '(Network:' + code + ') - Internal server error occured.';
-			break;
+			message = '(Network:' + code + ') - Internal server error occured.'
+			break
 		case 401:
-			message = '(Auth:' + code + ') - Invalid username or password.';
-			break;
+			message = '(Auth:' + code + ') - Invalid username or password.'
+			break
 		case 404:
-			message = '(System:' + code + ') - Invalid command for this server.';
-			break;
+			message = '(System:' + code + ') - Invalid command for this server.'
+			break
 		case 700:
-			message = '(Network:' + code + ') - Unable to connect to the server.';
-			break;
+			message = '(Network:' + code + ') - Unable to connect to the server.'
+			break
 		default:
-			message = '(System:' + code + ') - An unknow error occured.';
-			break;
+			message = '(System:' + code + ') - An unknow error occured.'
+			break
 	}	
-	showError( message );
+	showError( message )
 }
 
-function showInfo( message ) {
-	console.log('\n\033[32m  [INFO]: ' + message + '\x1B[39m\n');
+function showInfo ( message ) {
+	console.log('\n\033[32m  [INFO]: ' + message + '\x1B[39m\n')
 }
 
-function isQueryValid(error, response, body) {
-	
-	if (!response) {
-		showHttpError( 700 );
-		return null;
+function listFormat ( type, value ) {
+	var cfrb = color.xterm(9).bold
+	var cfgb = color.xterm(10).bold
+	switch (type) {
+		case 'script':
+			return value ? path.basename(value) : 'N/C'
+		case 'memory':
+			return value ? getHumanBytes(value) : 'N/C'
+		case 'uptime':
+			return value > 0 ? getHumanPeriod(value) : 'N/C'
+		case 'pid':
+			return value || 'N/C'
+		case 'host':
+			return value ? value.replace('http://',''): 'N/C'
+		case 'status':
+			return value == 'up' ? cfgb('up') : cfrb('down')
+		case 'enabled':
+			return value ? cfgb('yes') : cfrb('no')
+		case 'port':
+			return value || 'N/C'
+		case 'run':
+			return value != ':' ? value : 'N/C'
+		default:
+			return value
 	}
-	if (error || response.statusCode != 200) {
-		showHttpError( response.statusCode );
-		return null;
-	}
+	return ''
+}
+
+function showAppList ( apps ) {
 	
-	var query = body || false;
-	if (!query) {
-		showHttpError( 701 );
-		return null;
+	if ( !apps ||
+		apps.length < 1 ) {
+
+		showInfo('No apps found.')
+		return
 	}
+
+	var cfbb = color.blueBright.bold
 	
-	if (query.result != common.results.SPZ_OK) {		
-		showError( query.error );		
-		return null;
+	var table = new Table({
+	    head: [
+	    	cfbb('id'),
+	    	cfbb('name'),
+	    	cfbb('pid'),
+	    	cfbb('user'),
+	    	cfbb('script'),
+	    	cfbb('group'),
+	    	cfbb('status'),
+	    	cfbb('enabled'),
+	    	cfbb('host'),
+	    	cfbb('port'),
+	    	cfbb('uptime')
+	    ],
+	    colWidths: [
+	    	5, 15, 7, 12, 15, 10, 8, 9, 15, 7, 12
+	    ]	    
+	})
+	
+	for (var a=0; a<apps.length; a++) {
+		var app = apps[a]
+		table.push([
+		    listFormat('id', app.id),
+		    listFormat('name', app.name),
+		    listFormat('pid', app.status == 'up' ? app.pid : null),
+		    listFormat('run', app.uid + ':' + app.gid),
+		    listFormat('script', app.script),
+		    listFormat('group', app.group),
+		    listFormat('status', app.status),
+		    listFormat('enabled', app.enabled),
+		    listFormat('host', app.host),
+		    listFormat('port', app.port),
+		    listFormat('uptime', app.status == 'up' ? app.started : null)
+		])
+	}
+
+	console.log(table.toString())
+}
+
+function getDateValue ( timestamp ) {
+	if (!timestamp || timestamp < 1) {
+		return ''
 	}	
-	
-	return query;
+	return main.formatDate(new Date(timestamp),"%Y-%m-%d %H:%M:%S",false)
 }
 
-function getAppPattern() {	
+function showAppProperties ( app ) {
+
+	console.log('[name           ]: ' + app.name)
+	console.log('[group          ]: ' + app.group)
+	console.log('[uid            ]: ' + (app.uid != '' ? app.uid : 'N/C' ) )
+	console.log('[gid            ]: ' + (app.gid != '' ? app.gid : 'N/C' ) )
+	console.log('[status         ]: ' + app.status)
+	console.log('[host           ]: ' + app.host)
+	console.log('[port           ]: ' + app.port)
+	console.log('[enabled        ]: ' + (app.enabled ? 'yes' : 'no'))
+	console.log('[created        ]: ' + getDateValue( app.created ))
+	console.log('[started        ]: ' + getDateValue( app.started ))
+	console.log('[pid            ]: ' + app.pid)
+	console.log('[uptime         ]: ' + (app.started > 0 ? getHumanPeriod(app.started) : ''))
+	console.log('[script         ]: ' + app.script)
+	console.log('[params         ]: ' + app.params)
+	console.log('[env            ]: ' + (app.env != '' ? app.env.join(',') : '' ) )
+	console.log('[watch          ]: ' + (app.watch.enabled != '' ? 'yes' : 'no'))
+	if (app.watch.enabled) {		
+		console.log('[watch.path     ]: ' + app.watch.path)
+		if (app.watch.excludes) {
+			for (var e=0; e<app.watch.excludes.length; e++) {
+				var exclude = app.watch.excludes[e]
+				console.log('[watch.exclude-' + e + ']: ' + exclude)
+			}
+		}
+	}
+	console.log('[keep           ]: ' + (app.keep ? 'yes' : 'no'))
+	if (app.keep) {		
+		console.log('[keep.attempt   ]: ' + app.curAttempt)
+		console.log('[keep.max       ]: ' + app.attempt)
+	}	
+	if (app.files) {
+		console.log('[log.file       ]: ' + (app.files.log || 'N/C'))
+		console.log('[pid.file       ]: ' + (app.files.pid || 'N/C'))
+	}
+	console.log('[stats.started  ]: ' + app.stats.started)
+	console.log('[stats.crashed  ]: ' + app.stats.crashed)
+	console.log('[stats.stopped  ]: ' + app.stats.stopped)
+	console.log('[stats.restarted]: ' + app.stats.restarted)
+	console.log('[stats.cpu      ]: ' + app.stats.cpu + ' %')
+	console.log('[stats.memory   ]: ' + getHumanBytes(app.stats.memory))
+}
+
+function padding ( text, count, char ) {	
+	for (var i=0; i<count; i++) {
+		text += char
+	}
+	return text
+}
+
+function getPercent ( value, total, text, cleft, cright ) {
+	
+	text = padding( text, 8-text.length, ' ')
+	var percent = Math.round(Math.min((value / total) * 100,100) / 3.33)
+	
+	var gauge = ''
+	for (var i=1; i<31; i++) {
+		if (i <= percent) {
+			gauge += cleft			
+		}
+		else {
+			gauge += cright
+		}
+	}
+	return '[' + gauge + '] ' + text
+}
+
+function monitApp ( stat ) {
+	
+	console.log('  ' + stat.name)
+	
+	var cpu = getPercent(stat.cpu, 100, stat.cpu + ' %', color.bgRedBright(' '), color.bgBlack(' '))
+	var mem = getPercent(stat.mem, os.totalmem(), getHumanBytes(stat.mem), color.bgGreenBright(' '), color.bgBlack(' '))
+	var pid = stat.pid != '' ?	stat.pid : 'N/C'
+	
+	console.log('    - CPU: ' + cpu + ' MEM: ' + mem + ' PID: ' + pid  )	
+}
+
+function monitAppList ( stats ) {
+	
+	console.log(color.reset)
+	
+	process.stdout.write(color.move.to(1,1))
+	console.log(color.bold('[* Supervizer *] v' + common.pkg.version + ' - ' + stats.length + ' app(s).'))
+	console.log()
+	for (var s=0; s<stats.length; s++) {
+		monitApp( stats[s] )		
+	}	
+	console.log()
+}
+
+function getHumanBytes (bytes, precision) {
+	//console.log('bytes', bytes)
+
+	var kilobyte = 1024
+	var megabyte = kilobyte * 1024
+	var gigabyte = megabyte * 1024
+	var terabyte = gigabyte * 1024
+
+	if ((bytes >= 0) &&
+		(bytes < kilobyte)) {
+
+		return bytes + ' B'
+	}
+	else if ((bytes >= kilobyte) &&
+		(bytes < megabyte)) {
+
+	    return (bytes / kilobyte).toFixed(precision) + ' KB'
+	}
+	else if ((bytes >= megabyte) &&
+		(bytes < gigabyte)) {
+
+	    return (bytes / megabyte).toFixed(precision) + ' MB'
+	}
+	else if ((bytes >= gigabyte) &&
+		(bytes < terabyte)) {
+
+		return (bytes / gigabyte).toFixed(precision) + ' GB'
+	}
+	else if (bytes >= terabyte) {
+		return (bytes / terabyte).toFixed(precision) + ' TB'
+	}
+	else {
+	    return bytes + ' B'
+	}
+}
+
+function getHumanPeriod ( time ) {
+	
+	var second = 1000
+	var minute = 60000
+	var hour = 3600000
+	var day = 86400000
+	
+	var curTime = new Date().getTime()
+	var resultTime = Math.max(curTime - time,0)
+	var d, h, m, s
+	var result = ''
+
+	d = Math.round(resultTime / day)
+	if (d > 0) {
+		resultTime = resultTime % day
+	}
+	h = Math.round(resultTime / hour)
+	if (h > 0) {
+		resultTime = resultTime % hour
+	}
+	m = Math.round(resultTime / minute)
+	if (m > 0) {
+		resultTime = resultTime % minute
+	}
+	s = Math.round(resultTime / second)	
+
+	if (d > 0) {
+		result += d + 'd '
+	}
+	if (h > 0) {
+		result += h + 'h '
+	}
+	if (m > 0) {
+		result += m + 'm '
+	}
+	if (s > 0) { 
+		result += s + 's'
+	}
+
+	return result
+}
+
+function getAppTemplate () {	
 	return {
 		id: '',
 		name: commander.name || '',
@@ -102,6 +334,7 @@ function getAppPattern() {
 		timer: null,
 		stopped: false,
 		attempted: false,
+		enabled: true,
 		stdout: null,		
 		files: {
 			pid: commander.pid || '',
@@ -126,343 +359,172 @@ function getAppPattern() {
 	}
 }
 
-function getRequestParams( uri, data ) {
+function getCommandOptions () {
+	var options = []
+	if (typeof commander.force != 'undefined') {
+		options.push({
+			name: 'force',
+			value: commander.force
+		})
+	}
+	if (typeof commander.params != 'undefined') {
+		options.push({
+			name: 'params',
+			value: commander.params
+		})
+	}
+	if (typeof commander.run != 'undefined') {
+		options.push({
+			name: 'run',
+			value: {
+				user: commander.run.split(':')[0],
+				group: commander.run.split(':')[1]
+			}
+		})
+	}
+	if (typeof commander.group != 'undefined') {
+		options.push({
+			name: 'group',
+			value: commander.group
+		})
+	}
+	if (typeof commander.script != 'undefined') {
+		options.push({
+			name: 'script',
+			value: commander.script
+		})
+	}
+	if (typeof commander.log != 'undefined') {
+		options.push({
+			name: 'log',
+			value: commander.log
+		})
+	}
+	if (typeof commander.pid != 'undefined') {
+		options.push({
+			name: 'pid',
+			value: commander.pid
+		})
+	}
+	if (typeof commander.host != 'undefined') {
+		options.push({
+			name: 'host',
+			value: commander.host
+		})
+	}
+	if (typeof commander.keep != 'undefined') {
+		options.push({
+			name: 'keep',
+			value: commander.keep == 'yes' ? true : false
+		})
+	}
+	if (typeof commander.attempt != 'undefined') {
+		options.push({
+			name: 'attempt', 
+			value: commander.attempt
+		})
+	}
+	if (typeof commander.watch != 'undefined') {
+		options.push({
+			name: 'watch',
+			value: commander.watch			
+		})
+	}
+	if (typeof commander.exclude != 'undefined') {
+		options.push({
+			name: 'excludes',
+			value: commander.exclude.split(',')
+		})
+	}
+	if (typeof commander.port != 'undefined') {
+		options.push({
+			name: 'port',
+			value: commander.port
+		})
+	}
+	if (typeof commander.auth != 'undefined') {
+		var credentials = commander.auth.split(':')
+		options.push({
+			name: 'auth',
+			value: {
+				user: credentials[0],
+				password: credentials[1]
+			}
+		})
+	}
+	if (typeof commander.config != 'undefined') {
+		options.push({
+			name: 'config',
+			value: commander.config
+		})
+	}
+	return options
+}
+
+function getRequestParams ( uri, data ) {
 	return {
 		url: serverHost + uri,
-		headers: { 'Content-type': 'application/json' },
+		headers: {
+			'Content-type': 'application/json'
+		},
 		body: data,
 		json: true
 	}
 }
 
-function listFormat( type, value ) {
-	switch (type) {
-		case 'script':
-			return value ? path.basename(value) : 'N/C';
-		case 'memory':
-			return value ? getHumanBytes(value) : 'N/C';
-		case 'uptime':
-			return value > 0 ? getHumanPeriod(value) : 'N/C';
-		case 'pid':
-			return value || 'N/C';
-		case 'host':
-			return value ? value.replace('http://',''): 'N/C';
-		case 'status':
-			return value;
-		case 'port':
-			return value || 'N/C';
-		case 'run':
-			return value != ':' ? value : 'N/C';
-		default:
-			return value;
+function isQueryValid (error, response, body) {
+	if (!response) {
+		showHttpError( 700 )
+		return null;
 	}
-	return '';
-}
+	if (error ||
+		response.statusCode != 200) {
 
-function showAppList( apps ) {
-	
-	if ( !apps || apps.length < 1 ) {
-		showInfo( 'No apps found.');
-		return;
+		showHttpError( response.statusCode )
+		return null
 	}
-	
-	var table = new Table({
-	    head: [
-	    	'id',
-	    	'name',
-	    	'pid',
-	    	'user',
-	    	'script',
-	    	'group',
-	    	'status',
-	    	'host',
-	    	'port',
-	    	'uptime'],
-	    colWidths: [5, 15, 8, 15, 15, 10, 8, 15, 9, 12]	    
-	});
-	
-	for (var a=0; a<apps.length; a++) {
-		var app = apps[a];
-		table.push([
-		     listFormat('id', app.id),
-		     listFormat('name', app.name),
-		     listFormat('pid', app.status == 'online' ? app.pid : null),
-		     listFormat('run', app.uid + ':' + app.gid),
-		     listFormat('script', app.script),
-		     listFormat('group', app.group),
-		     listFormat('status', app.status),
-		     listFormat('host', app.host),
-		     listFormat('port', app.port),
-		     listFormat('uptime', app.status == 'online' ? app.started : null)
-		]);
+	var query = body || false
+	if (!query) {
+		showHttpError( 701 )
+		return null
 	}
-
-	console.log(table.toString());
-}
-
-function getDateValue( timestamp ) {
-	if (!timestamp || timestamp < 1) {
-		return '';
+	if (query.result != common.results.SPZ_OK) {
+		showError( query.error )	
+		return null
 	}	
-	return main.formatDate(new Date(timestamp),"%Y-%m-%d %H:%M:%S",false);
+	return query
 }
 
-function showAppProperties( app ) {
+function sendGet (params, callback) {
+	sendRequest( 'get', params, callback )
+}
 
-	console.log('[name           ]: ' + app.name);
-	console.log('[group          ]: ' + app.group);
-	console.log('[uid            ]: ' + (app.uid != '' ? app.uid : 'N/C' ) );
-	console.log('[gid            ]: ' + (app.gid != '' ? app.gid : 'N/C' ) );
-	console.log('[status         ]: ' + app.status);
-	console.log('[host           ]: ' + app.host);
-	console.log('[port           ]: ' + app.port);
-	console.log('[created        ]: ' + getDateValue( app.created ));
-	console.log('[started        ]: ' + getDateValue( app.started ));
-	console.log('[pid            ]: ' + app.pid);
-	console.log('[uptime         ]: ' + (app.started > 0 ? getHumanPeriod(app.started) : ''));
-	console.log('[script         ]: ' + app.script);
-	console.log('[params         ]: ' + app.params);
-	console.log('[env            ]: ' + (app.env != '' ? app.env.join(',') : '' ) );
-	console.log('[watch          ]: ' + (app.watch.enabled != '' ? 'yes' : 'no'));
-	if (app.watch.enabled) {		
-		console.log('[watch.path     ]: ' + app.watch.path);
-		if (app.watch.excludes) {
-			for (var e=0; e<app.watch.excludes.length; e++) {
-				var exclude = app.watch.excludes[e];
-				console.log('[watch.exclude-' + e + ']: ' + exclude);
+function sendPut (params, callback) {
+	sendRequest( 'put', params, callback )
+}
+
+function sendPost (params, callback) {
+	sendRequest( 'post', params, callback )
+}
+
+function sendDel (params, callback) {
+	sendRequest( 'del', params, callback )
+}
+
+function sendRequest (method, params, callback) {
+	var func = request[method] || null
+	if (func) {
+		func( params, function (error, response, body) {
+			//console.log( '[receive]:\n - data: ' + JSON.stringify(body))
+			var query = isQueryValid(error, response, body)
+			if (!query) {
+				process.exit(SPZ_ERROR_EXIT)
 			}
-		}
-	}
-	console.log('[keep           ]: ' + (app.keep ? 'yes' : 'no'));
-	if (app.keep) {		
-		console.log('[keep.attempt   ]: ' + app.curAttempt);
-		console.log('[keep.max       ]: ' + app.attempt);
-	}	
-	if (app.files) {
-		console.log('[log.file       ]: ' + (app.files.log || 'N/C'));
-		console.log('[pid.file       ]: ' + (app.files.pid || 'N/C'));
-	}
-	console.log('[stats.started  ]: ' + app.stats.started);
-	console.log('[stats.crashed  ]: ' + app.stats.crashed);
-	console.log('[stats.stopped  ]: ' + app.stats.stopped);
-	console.log('[stats.restarted]: ' + app.stats.restarted);
-	console.log('[stats.cpu      ]: ' + app.stats.cpu + ' %');
-	console.log('[stats.memory   ]: ' + getHumanBytes(app.stats.memory));
-}
-
-function padding( text, count, char ) {	
-	for (var i=0; i<count; i++) {
-		text += char;
-	}
-	return text;
-}
-
-function getPercent( value, total, text, cleft, cright ) {
-	
-	text = padding( text, 8-text.length, ' ');	
-	var percent = Math.round(Math.min((value / total) * 100,100) / 3.33);
-	
-	var gauge = '';
-	for (var i=1; i<31; i++) {
-		if (i <= percent) {
-			gauge += cleft;			
-		}
-		else {
-			gauge += cright;
-		}
-	}
-	
-	return '[' + gauge + '] ' + text;
-}
-
-function monitApp( stat ) {
-	
-	console.log('  '+stat.name);
-	
-	var cpu = getPercent(stat.cpu, 100, stat.cpu + ' %', color.bgRedBright(' '), color.bgBlack(' '));	
-	var mem = getPercent(stat.mem, os.totalmem(), getHumanBytes(stat.mem), color.bgGreenBright(' '), color.bgBlack(' '));
-	var pid = stat.pid != '' ?	stat.pid : 'N/C';
-	
-	console.log('    - CPU: ' + cpu + ' MEM: ' + mem + ' PID: ' + pid  );	
-}
-
-function monitAppList( stats ) {
-	
-	console.log(color.reset);
-	
-	process.stdout.write(color.moveTo(1,1));
-	console.log(color.bold('[* Supervizer *] v' + common.pkg.version + ' - ' + stats.length + ' app(s).'));
-	console.log();	
-	for (var s=0; s<stats.length; s++) {
-		monitApp( stats[s] );		
-	}	
-	console.log();
-}
-
-function getHumanBytes(bytes, precision) {
-	//console.log('bytes', bytes)
-
-	var kilobyte = 1024;
-	var megabyte = kilobyte * 1024;
-	var gigabyte = megabyte * 1024;
-	var terabyte = gigabyte * 1024;
-
-	if ((bytes >= 0) && (bytes < kilobyte)) {
-		return bytes + ' B';
-	}
-	else if ((bytes >= kilobyte) && (bytes < megabyte)) {
-	    return (bytes / kilobyte).toFixed(precision) + ' KB';
-	}
-	else if ((bytes >= megabyte) && (bytes < gigabyte)) {
-	    return (bytes / megabyte).toFixed(precision) + ' MB';
-	}
-	else if ((bytes >= gigabyte) && (bytes < terabyte)) {
-		return (bytes / gigabyte).toFixed(precision) + ' GB';
-	}
-	else if (bytes >= terabyte) {
-		return (bytes / terabyte).toFixed(precision) + ' TB';
-	}
-	else {
-	    return bytes + ' B';
-	}
-};
-
-function getHumanPeriod( time ) {
-	
-	var second = 1000;
-	var minute = 60000;
-	var hour = 3600000;
-	var day = 86400000;
-	
-	var curTime = new Date().getTime();
-	var resultTime = Math.max(curTime - time,0);
-	var d, h, m, s;
-	var result = '';
-
-	d = Math.round(resultTime / day);
-	if (d > 0) {
-		resultTime = resultTime % day;
-	}
-	h = Math.round(resultTime / hour);
-	if (h > 0) {
-		resultTime = resultTime % hour;
-	}
-	m = Math.round(resultTime / minute);
-	if (m > 0) {
-		resultTime = resultTime % minute;
-	}
-	s = Math.round(resultTime / second);	
-
-	if (d > 0) {
-		result += d + 'd ';
-	}
-	if (h > 0) {
-		result += h + 'h ';
-	}
-	if (m > 0) {
-		result += m + 'm ';
-	}
-	if (s > 0) { 
-		result += s + 's';
-	}
-
-	return result;
-};
-
-function getCommandOptions() {
-	var options = [];
-	if (typeof commander.force != 'undefined') {
-		options.push({ 
-			force: commander.force
-		});
-	}
-	if (typeof commander.name != 'undefined') {
-		options.push({ 
-			name: commander.name
-		});
-	}
-	if (typeof commander.env != 'undefined') {
-		options.push({ 
-			env: commander.env
-		});
-	}
-	if (typeof commander.params != 'undefined') {
-		options.push({ 
-			params: commander.params
-		});
-	}
-	if (typeof commander.run != 'undefined') {
-		options.push({ 
-			run: {
-				user: commander.run.split(':')[0],
-				group: commander.run.split(':')[1]
+			else {
+				callback(query)
 			}
-		});
+		})
 	}
-	if (typeof commander.group != 'undefined') {
-		options.push({ 
-			group: commander.group
-		});
-	}
-	if (typeof commander.script != 'undefined') {
-		options.push({ 
-			script: commander.script
-		});
-	}
-	if (typeof commander.log != 'undefined') {
-		options.push({ 
-			log: commander.log
-		});
-	}
-	if (typeof commander.pid != 'undefined') {
-		options.push({ 
-			pid: commander.pid
-		});
-	}
-	if (typeof commander.host != 'undefined') {
-		options.push({ 
-			host: commander.host
-		});
-	}
-	if (typeof commander.keep != 'undefined') {
-		options.push({ 
-			keep: commander.keep == 'yes' ? true : false
-		});
-	}
-	if (typeof commander.attempt != 'undefined') {
-		options.push({ 
-			attempt: commander.attempt
-		});
-	}
-	if (typeof commander.watch != 'undefined') {
-		options.push({ 
-			watch: commander.watch			
-		});
-	}
-	if (typeof commander.exclude != 'undefined') {
-		options.push({ 
-			excludes: commander.exclude.split(',')
-		});
-	}
-	if (typeof commander.port != 'undefined') {
-		options.push({ 
-			port: commander.port
-		});
-	}
-	if (typeof commander.auth != 'undefined') {
-		options.push({ 
-			auth: {
-				user: commander.auth.split(':')[0],
-				password: commander.auth.split(':')[1]
-			}
-		});
-	}
-	if (typeof commander.config != 'undefined') {
-		options.push({ 
-			config: commander.config
-		});
-	}
-	return options;
 }
 
 /**
@@ -470,7 +532,6 @@ function getCommandOptions() {
  */
 commander.version(common.pkg.version)
 	.option('-v --verbose', 'display verbose data')
-	.option('-f --force', 'force supervizer actions')
 	.option('-n --name <string>', 'specify app name')
 	.option('-z --env <string>', 'specify comma separated environment variables', function (value) {
   		return value.split(',')
@@ -489,384 +550,393 @@ commander.version(common.pkg.version)
 	.option('-p --port <port>', 'specify port to bind')
 	.option('-a --auth <user:password>', 'specify user/password to use')
 	.option('-c --config <file>', 'specify config file to load/save')
-	.usage('[command] <options>');
+	.usage('[command] <options>')
 
 commander.command('help <command>')
-.description('print required/allowed options for each command.')
-.action(function() {
-	
-});
+	.description('print required/allowed options for each command.')
+	.action(function (command) {
+		
+		showError('Sorry this command is not implemented yet.')
+	}
+)
 
 commander.command('install')
-.description('install supervizer as daemon')
-.action(function() {
-	
-	if (process.getuid() != 0) {
-		showError('You must run supervizer as root for this command.');
-		process.exit(SPZ_ERROR_EXIT);
-	}		
-});
+	.description('install supervizer as daemon/service')
+	.action(function () {
+		
+		showError('Sorry this command is not implemented yet.')
 
-commander.command('uninstall')
-	.description('uninstall supervizer as daemon')
-	.action(function() {
+		console.log(' You can use theses applications to install supervizer as a service:')
+		console.log()
+		console.log('  On Linux')
+		console.log()
+		console.log('   * Sysvinit - (https://help.ubuntu.com/community/UbuntuBootupHowto).')
+		console.log('   * Upstart - (http://upstart.ubuntu.com/getting-started.html).')
+		console.log('   * Systemd - (https://wiki.ubuntu.com/SystemdForUpstartUsers).')
+		console.log()
+
+		/*console.log( '** Supervizer installer (v' + common.pkg.version + ') **')
 		
 		if (process.getuid() != 0) {
-			showError('You must run supervizer as root for this command.');
-			process.exit(SPZ_ERROR_EXIT);
-		}		
-});
+			showError('You must run supervizer as root for this command.')
+			process.exit(SPZ_ERROR_EXIT)
+			return
+		}
+
+		var type = os.type().toLowerCase()
+		switch (type) {
+			case 'linux':
+				console.log( ' OS (' + type + ') detected.')
+				break
+			case 'darwin':
+				console.log( ' OS (' + type + ') detected.')
+				break
+			case 'windows_nt':
+				console.log( ' OS (' + type + ') detected.')
+				break
+			default:
+				showError(' OS (' + type + ') not supported.')
+				break
+		}*/
+	}
+)
+
+commander.command('uninstall')
+	.description('uninstall supervizer as daemon/service')
+	.action(function () {
+
+		showError('Sorry this command is not implemented yet.')
+
+		/*if (process.getuid() != 0) {
+			showError('You must run supervizer as root for this command.')
+			process.exit(SPZ_ERROR_EXIT)
+			return
+		}*/	
+	}
+)
 
 commander.command('load')
-	.description('load from a process configuration JSON file')
-	.action(function() {
+	.description('load all applications from a JSON config file')
+	.action(function () {
 		
 		var data = {
-			file: commander.config || common.settings.apps
+			file: commander.config || common.settings.apps,
+			options: getCommandOptions()
 		}
-		var params = getRequestParams( 'config/load', JSON.stringify(data) );
-		
-		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
-		
-		request.post( params, function(error, response, body){
-			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
-			
-			var query = isQueryValid(error, response, body);
-			if (!query) {
-				process.exit(SPZ_ERROR_EXIT);
-			}
-			else {
-				showInfo(query.success);
-			}
-			
-		});
-});
+		var params = getRequestParams( 'config/load', data )
+
+		//console.log( 'params', params )
+		sendPost( params, function (query) {
+			showInfo(query.success)
+		})
+	}
+)
 
 commander.command('save')
-	.description('save to a process configuration JSON file')
-	.action(function() {
+	.description('save all applications to a JSON config file')
+	.action(function () {
 		
 		var data = {
-				file: commander.config || common.settings.apps
+			file: commander.config || common.settings.apps,
+			options: getCommandOptions()
 		}
-		var params = getRequestParams( 'config/save', JSON.stringify(data) );
+		var params = getRequestParams( 'config/save', data )
 		
-		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
-		
-		request.post( params, function(error, response, body){
-			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
-			
-			var query = isQueryValid(error, response, body);
-			if (!query) {
-				process.exit(SPZ_ERROR_EXIT);
-			}
-			else {
-				showInfo(query.success);
-			}
-			
-		});
-});
+		//console.log( 'params', params )
+		sendPost( params, function (query) {
+			showInfo(query.success)
+		})
+	}
+)
 
 commander.command('add')
-	.description('add a node process')
-	.action(function() {	
+	.description('add an application')
+	.action(function () {	
 		
-		var app = getAppPattern();		
-		var params = getRequestParams( 'apps', JSON.stringify(app) );
-		
-		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
-		
-		request.post( params, function(error, response, body){
-			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
-			
-			var query = isQueryValid(error, response, body);
-			if (!query) {
-				process.exit(SPZ_ERROR_EXIT);
-			}
-			else {
-				showInfo(query.success);
-			}
-			
-		});
-});
+		var data = {
+			app: getAppTemplate(),
+			options: getCommandOptions()
+		}		
+		var params = getRequestParams( 'apps', data )
+
+		//console.log( 'params', params )
+		sendPut( params, function (query) {
+			showInfo(query.success)
+		})
+	}
+)
 
 commander.command('remove')
-	.description('remove a node process')
+	.description('remove an application')
 	.action(function() {
 		
-		var app = getAppPattern();		
-		var params = getRequestParams( 'apps', JSON.stringify(app) );
-		
-		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
-		
-		request.del( params, function(error, response, body){
-			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
-			
-			var query = isQueryValid(error, response, body);
-			if (!query) {
-				process.exit(SPZ_ERROR_EXIT);
-			}
-			else {
-				showInfo(query.success);
-			}
-			
-		});		
-});
+		var data = {
+			app: getAppTemplate(),
+			options: getCommandOptions()
+		}
+		var params = getRequestParams( 'apps', data )
+
+		//console.log( 'params', params )
+		sendDel( params, function (query) {
+			showInfo(query.success)
+		})
+	}
+)
 
 commander.command('start')
-	.description('start a new node process')
-	.action(function() {
+	.description('start an application')
+	.action(function () {
 		
-		var app = getAppPattern();		
-		var params = getRequestParams( 'app/start', JSON.stringify(app) );
-		
-		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
-		
-		request.post( params, function(error, response, body){
-			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
-			
-			var query = isQueryValid(error, response, body);
-			if (!query) {
-				process.exit(SPZ_ERROR_EXIT);
-			}
-			else {
-				showInfo(query.success);
-			}
-			
-		});
-});
+		var data = {
+			app: getAppTemplate(),
+			options: getCommandOptions()
+		}	
+		var params = getRequestParams( 'app/start', data )
+
+		//console.log( 'params', params )
+		sendPost( params, function (query) {
+			showInfo(query.success)
+		})
+	}
+)
 
 commander.command('startAll')
-	.description('start all node process')
+	.description('start all applications')
 	.action(function() {
 		
-		var app = getAppPattern();		
-		var params = getRequestParams( 'apps/start', JSON.stringify(app) );
-		
-		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
-		
-		request.post( params, function(error, response, body){
-			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
-			
-			var query = isQueryValid(error, response, body);
-			if (!query) {
-				process.exit(SPZ_ERROR_EXIT);
-			}
-			else {
-				showInfo(query.success);
-			}
-			
-		});
-});
+		var data = {
+			app: getAppTemplate(),
+			options: getCommandOptions()
+		}
+		var params = getRequestParams( 'apps/start', data )
+
+		//console.log( 'params', params )
+		sendPost( params, function (query) {
+			showInfo(query.success)
+		})
+	}
+)
 
 commander.command('stop')
-	.description('stop a node process')
+	.description('stop an application')
 	.action(function() {
 		
-		var app = getAppPattern();		
-		var params = getRequestParams( 'app/stop', JSON.stringify(app) );
+		var data = {
+			app: getAppTemplate(),
+			options: getCommandOptions()
+		}
+		var params = getRequestParams( 'app/stop', data )
 		
-		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
-		
-		request.post( params, function(error, response, body){
-			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
-			
-			var query = isQueryValid(error, response, body);
-			if (!query) {
-				process.exit(SPZ_ERROR_EXIT);
-			}
-			else {
-				showInfo(query.success);
-			}
-			
-		});
-});
+		//console.log( 'params', params )
+		sendPost( params, function (query) {
+			showInfo(query.success)
+		})
+	}
+)
 
 commander.command('stopAll')
-	.description('stop all node process')
+	.description('stop all applications')
 	.action(function() {
 		
-		var app = getAppPattern();		
-		var params = getRequestParams( 'apps/stop', JSON.stringify(app) );
+		var data = {
+			options: getCommandOptions()
+		}	
+		var params = getRequestParams( 'apps/stop', data )
 		
-		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
-		
-		request.post( params, function(error, response, body){
-			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
-			
-			var query = isQueryValid(error, response, body);
-			if (!query) {
-				process.exit(SPZ_ERROR_EXIT);
-			}
-			else {
-				showInfo(query.success);
-			}
-			
-		});
-});
+		//console.log( 'params', params )
+		sendPost( params, function (query) {
+			showInfo(query.success)
+		})
+	}
+)
 
 commander.command('restart')
-	.description('restart a node process')
+	.description('restart an application')
 	.action(function() {
 		
-		var app = getAppPattern();		
-		var params = getRequestParams( 'app/restart', JSON.stringify(app) );
+		var data = {
+			app: getAppTemplate(),
+			options: getCommandOptions()
+		}		
+		var params = getRequestParams( 'app/restart', data )
 		
-		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
-		
-		request.post( params, function(error, response, body){
-			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
-			
-			var query = isQueryValid(error, response, body);
-			if (!query) {
-				process.exit(SPZ_ERROR_EXIT);
-			}
-			else {
-				showInfo(query.success);
-			}
-			
-		});
-});
+		//console.log( 'params', params )
+		sendPost( params, function (query) {
+			showInfo(query.success)
+		})
+	}
+)
 
 commander.command('restartAll')
-	.description('restart all node process')
+	.description('restart all applications')
 	.action(function() {
 		
-		var app = getAppPattern();		
-		var params = getRequestParams( 'apps/restart', JSON.stringify(app) );
+		var data = {
+			options: getCommandOptions()
+		}
+		var params = getRequestParams( 'apps/restart', data )
 		
-		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
-		
-		request.post( params, function(error, response, body){
-			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
-			
-			var query = isQueryValid(error, response, body);
-			if (!query) {
-				process.exit(SPZ_ERROR_EXIT);
-			}
-			else {
-				showInfo(query.success);
-			}
-			
-		});
-});
+		//console.log( 'params', params )
+		sendPost( params, function (query) {
+			showInfo(query.success)
+		})
+	}
+)
 
 commander.command('list')
-	.description('list all node process')
+	.description('list all applications')
 	.action(function() {
 		
-	var app = getAppPattern();	
-	var params = getRequestParams( 'apps/list', JSON.stringify(app) );
-	
-	//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
-	
-	request.post( params, function(error, response, body){
-		//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
-		
-		var query = isQueryValid(error, response, body);
-		if (!query) {
-			process.exit(SPZ_ERROR_EXIT);
+		var data = {
+			options: getCommandOptions()
 		}
-		else {
-			showAppList( query.data );
-		}
+		var params = getRequestParams( 'apps/list', data )
 		
-	});
-		
-});
+		//console.log( 'params', params )
+		sendPost( params, function (query) {
+			showAppList(query.data)
+		})
+	}
+)
 
 commander.command('monit')
-	.description('monitor all node process')
+	.description('monitor all applications')
 	.action(function() {
 		
-		var app = getAppPattern();	
-		var params = getRequestParams( 'apps/monit', JSON.stringify(app) );
+		var data = {
+			options: getCommandOptions()
+		}
+		var params = getRequestParams( 'apps/monit', data )
+
+		//console.log( 'params', params )
+		var callback = function () {
+			sendPost( params, function (query) {
+				monitAppList(query.data)
+			})			
+		}
+
+		var stdin = process.openStdin()
+		stdin.setRawMode(true)
+		stdin.resume()
+		stdin.on('data', function (data) {
+			var str = data.toString()
+			if (str &&
+				(str == 'q' || str == 'Q')) {
+				process.exit(SPZ_SUCCESS_EXIT)
+			}
+		})
 		
-		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
+		callback()
+		setInterval(callback, 1000)
+	}
+)
+
+commander.command('secure <mode>')
+	.description('create/update/remove security authentication')
+	.action(function (mode) {
+
+		var data = {
+			mode: mode,
+			options: getCommandOptions()
+		}		
+		var params = getRequestParams( 'app/enable', data )
 		
-		var callback = function(){			
-			request.post( params, function(error, response, body){
-				//console.log( '[receive]:\n - data: ' + JSON.stringify(body));				
-				var query = isQueryValid(error, response, body);
-				if (!query) {
-					process.exit(SPZ_ERROR_EXIT);
-				}
-				else {
-					monitAppList( query.data );
-				}				
-			});			
-		};
+		//console.log( 'params', params )
+		sendPost( params, function (query) {
+			showInfo(query.success)
+		})
+	}
+)
+
+commander.command('enable <name>')
+	.description('enable application')
+	.action(function (name) {
+
+		var data = {
+			app: {
+				name: name
+			},
+			options: getCommandOptions()
+		}	
+		var params = getRequestParams( 'app/enable', data )
 		
-		callback();
-		setInterval(callback, 1000);
-});
+		//console.log( 'params', params )
+		sendPost( params, function (query) {
+			showInfo(query.success)
+		})
+	}
+)
+
+commander.command('disable <name>')
+	.description('disable application')
+	.action(function (name) {
+
+		var data = {
+			app: {
+				name: name
+			},
+			options: getCommandOptions()
+		}		
+		var params = getRequestParams( 'app/disable', data )
+		
+		//console.log( 'params', params )
+		sendPost( params, function (query) {
+			showInfo(query.success)
+		})
+	}
+)
 
 commander.command('set <name>')
-	.description('setting process property value')
-	.action(function(name) {
+	.description('setting application properties value')
+	.action(function (name) {
 
 		var data = {
-				search: name,
-				app: getAppPattern(),
-				options: getCommandOptions()
+			search: name,
+			app: getAppTemplate(),
+			options: getCommandOptions()
 		}		
-		var params = getRequestParams( 'app', JSON.stringify(data) );
+		var params = getRequestParams( 'app', data )
 		
-		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
-		
-		request.post( params, function(error, response, body){
-			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
-			
-			var query = isQueryValid(error, response, body);
-			if (!query) {
-				process.exit(SPZ_ERROR_EXIT);
-			}
-			else {
-				showInfo(query.success);
-			}
-			
-		});
+		//console.log( 'params', params )
+		sendPost( params, function (query) {
+			showInfo(query.success)
+		})
 
-});
+	}
+)
 
 commander.command('get <name>')
-	.description('getting process properties values')
-	.action(function(name,param) {
+	.description('getting application properties values')
+	.action(function (name) {
 		
 		var data = {
-				search: name
+			app: {
+				name: name
+			},
+			options: getCommandOptions()
 		}		
-		var params = getRequestParams( 'app', JSON.stringify(data) );
+		var params = getRequestParams( 'app', data )
 		
-		//console.log( '[send]:\n' + ' - url: ' + params.url + '\n - data: ' + JSON.stringify(app) + '\n' );
-		
-		request.get( params, function(error, response, body){
-			//console.log( '[receive]:\n - data: ' + JSON.stringify(body));
-			
-			var query = isQueryValid(error, response, body);
-			if (!query) {
-				process.exit(SPZ_ERROR_EXIT);
-			}
-			else {
-				showAppProperties( query.data );
-			}
-			
-		});
-});
-
+		//console.log( 'params', params )
+		sendGet( params, function (query) {
+			showAppProperties(query.data)
+		})
+	}
+)
 
 commander.command('*')
-	.action(function() {
-		showError('Command not found.');
-		commander.outputHelp();
-		process.exit(SPZ_ERROR_EXIT);
-});
+	.action(function () {
+		showError('Command not found.')
+		commander.outputHelp()
+		process.exit(SPZ_ERROR_EXIT)
+	}
+)
 
 if (process.argv.length == 2) {
-	commander.parse(process.argv);
-	commander.outputHelp();
-	process.exit(SPZ_ERROR_EXIT);
+	commander.parse(process.argv)
+	commander.outputHelp()
+	process.exit(SPZ_ERROR_EXIT)
 }
 
-//console.log( 'process.argv.length: ' + process.argv.length );
-commander.parse(process.argv);
+//console.log( 'process.argv.length: ' + process.argv.length )
+commander.parse(process.argv)

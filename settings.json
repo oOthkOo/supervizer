@@ -1,10 +1,11 @@
 {
 	"host": "localhost",
-	"port": 8200,	
+	"port": 8200,
 	"auth" : {
+		"enabled": false,
 		"user": "admin",
 		"password": "123456"
 	},
 	"apps": "apps.json",
-	"bin": "node"	
+	"bin": "node"
 }

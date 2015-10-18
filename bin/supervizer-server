@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-var common = require('../lib/common');
-var main = require('../lib/main');
-var express = require('express');
-var server = express();
+var common = require('../lib/common')
+var main = require('../lib/main')
+var express = require('express')
+var bodyParser = require('body-parser')
+var server = express()
 
-server.disable('x-powered-by');
-server.use(express.bodyParser());
-//server.use(express.logger());
+server.disable('x-powered-by')
+server.use(bodyParser.json())
 
 /**
  * API endpoints
@@ -17,7 +17,7 @@ server.use(express.bodyParser());
  * 				GET   		/					Show server banner
  * load			POST		/config/load		Load all apps from file
  * save			POST		/config/save		Save all apps to file
- * add			POST		/apps				Add an app to run
+ * add			PUT			/apps				Add an app to run
  * remove		DELETE		/apps				Stop and Remove an app
  * start		POST		/app/start			Start an app
  * startAll		POST		/apps/start			Start all apps
@@ -27,170 +27,192 @@ server.use(express.bodyParser());
  * restartAll	POST		/apps/restart		Restart all apps
  * list			POST		/apps/list			Get app state list
  * monit		POST		/apps/monit			Monitor all apps
- * set			POST		/app				Set an app property			
+ * secure		POST		/secure				Enable/Disable authentication
+ * enable		POST		/app/enable			Enable/Start an app
+ * disable		POST		/app/disable		Disable/Stop an app
+ * set			POST		/app				Set an app property		
  * get			POST		/app				Get an app property
  */
+
+function getResult ( req ) {
+	req.body.ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+	return req.body
+}
 
 /**
  * GET /
  */
-server.get('/', function(req, res) {  	
-	res.end('Supervizer server v' + common.pkg.version);
-});
+server.get('/', function (req, res) {  	
+	res.end('Supervizer server v' + common.pkg.version)
+})
 
 /**
  * GET /config/load
  */
-server.post('/config/load', function(req, res) {  	
+server.post('/config/load', function (req, res) {  	
 		
-	//console.log( '[request]:\n' + ' - path: /config/load\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	res.end(JSON.stringify(main.load(req.body)));
-});
+	//console.log( '[request]:\n' + ' - path: /config/load\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.load(getResult(req))))
+})
 
 /**
  * POST /config/save
  */
-server.post('/config/save', function(req, res) {  	
+server.post('/config/save', function (req, res) {  	
 		
-	//console.log( '[request]:\n' + ' - path: /config/save\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	res.end(JSON.stringify(main.save(req.body)));
-});
+	//console.log( '[request]:\n' + ' - path: /config/save\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.save(getResult(req))))
+})
 
 /**
- * POST /apps
+ * PUT /apps
  */
-server.post('/apps', function(req, res) {  	
+server.put('/apps', function (req, res) {  	
 		
-	//console.log( '[request]:\n' + ' - path: /apps\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	res.end(JSON.stringify(main.add(req.body)));
-});
+	//console.log( '[request]:\n' + ' - path: /apps\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.add(getResult(req))))
+})
 
 /**
  * DELETE /apps
  */
-server.del('/apps', function(req, res) {  	
+server.delete('/apps', function (req, res) {  	
 		
-	//console.log( '[request]:\n' + ' - path: /apps\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	res.end(JSON.stringify(main.remove(req.body)));
-});
+	//console.log( '[request]:\n' + ' - path: /apps\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.remove(getResult(req))))
+})
 
 /**
  * POST /app
  */
-server.post('/app', function(req, res) {  	
+server.post('/app', function (req, res) {  	
 		
-	//console.log( '[request]:\n' + ' - path: /app\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	res.end(JSON.stringify(main.set(req.body)));
-});
+	//console.log( '[request]:\n' + ' - path: /app\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.set(getResult(req))))
+})
 
 /**
  * GET /app
  */
-server.get('/app', function(req, res) {  	
+server.get('/app', function (req, res) {  	
 		
-	//console.log( '[request]:\n' + ' - path: /app\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	res.end(JSON.stringify(main.get(req.body)));
-});
+	//console.log( '[request]:\n' + ' - path: /app\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.get(getResult(req))))
+})
 
 /**
  * POST /app/start
  */
-server.post('/app/start', function(req, res) {  	
+server.post('/app/start', function (req, res) {  	
 		
-	//console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	res.end(JSON.stringify(main.start(req.body)));
-});
+	//console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.start(getResult(req))))
+})
 
 /**
  * POST /apps/start
  */
-server.post('/apps/start', function(req, res) {  	
+server.post('/apps/start', function (req, res) {  	
 		
-	//console.log( '[request]:\n' + ' - path: /apps/start\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	res.end(JSON.stringify(main.startAll(req.body)));
-});
+	//console.log( '[request]:\n' + ' - path: /apps/start\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.startAll(getResult(req))))
+})
 
 /**
  * POST /app/restart
  */
-server.post('/app/restart', function(req, res) {  	
+server.post('/app/restart', function (req, res) {  	
 		
-	//console.log( '[request]:\n' + ' - path: /app/restart\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	res.end(JSON.stringify(main.restart(req.body)));
-});
+	//console.log( '[request]:\n' + ' - path: /app/restart\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.restart(getResult(req))))
+})
 
 /**
  * POST /apps/restart
  */
-server.post('/apps/restart', function(req, res) {  	
+server.post('/apps/restart', function (req, res) {  	
 		
-	//console.log( '[request]:\n' + ' - path: /apps/restart\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	res.end(JSON.stringify(main.restartAll(req.body)));
-});
+	//console.log( '[request]:\n' + ' - path: /apps/restart\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.restartAll(getResult(req))))
+})
 
 /**
  * POST /app/stop
  */
-server.post('/app/stop', function(req, res) {  	
+server.post('/app/stop', function (req, res) {  	
 		
-	//console.log( '[request]:\n' + ' - path: /app/stop\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	res.end(JSON.stringify(main.stop(req.body)));
-});
+	//console.log( '[request]:\n' + ' - path: /app/stop\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.stop(getResult(req))))
+})
 
 /**
  * POST /apps/stop
  */
-server.post('/apps/stop', function(req, res) {  	
+server.post('/apps/stop', function (req, res) {  	
 		
-	//console.log( '[request]:\n' + ' - path: /apps/stop\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	res.end(JSON.stringify(main.stopAll(req.body)));
-});
+	//console.log( '[request]:\n' + ' - path: /apps/stop\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.stopAll(getResult(req))))
+})
+
+/**
+ * POST /secure
+ */
+server.post('/secure', function (req, res) {  	
+		
+	//console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.secure(getResult(req))))
+})
+
+/**
+ * POST /app/enable
+ */
+server.post('/app/enable', function (req, res) {  	
+		
+	//console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.enable(getResult(req))))
+})
+
+/**
+ * POST /app/disable
+ */
+server.post('/app/disable', function (req, res) {  	
+		
+	//console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.disable(getResult(req))))
+})
 
 /**
  * POST /apps/list
  */
-server.post('/apps/list', function(req, res) {
+server.post('/apps/list', function (req, res) {
 	
-	//console.log( '[request]:\n' + ' - path: /apps/list\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	res.end(JSON.stringify(main.list(req.body)));
-});
+	//console.log( '[request]:\n' + ' - path: /apps/list\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.list(getResult(req))))
+})
 
 /**
  * POST /apps/monit
  */
-server.post('/apps/monit', function(req, res) {
+server.post('/apps/monit', function (req, res) {
 	
-	//console.log( '[request]:\n' + ' - path: /apps/monit\n - receive: ' + JSON.stringify(req.body) + '\n' );
-	
-	res.end(JSON.stringify(main.monit(req.body)));
-});
+	//console.log( '[request]:\n' + ' - path: /apps/monit\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.monit(getResult(req))))
+})
 
-server.get('*', function(req, res) {
-  	res.send('NotFound Server Error', 404);
-});
+server.all('*', function (req, res) {
+  	res.status(404).send('NotFound Server Error')
+})
 
-server.use(function(err, req, res, next) {  	
-  	res.send('Internal Server Error', 500);
-  	main.showError('A fatal error occured');
-	console.error(err.stack);
-});
+server.use(function (err, req, res, next) {  	
+  	res.status(500).send('Internal Server Error')
+  	main.showError('A fatal error occured')
+	console.error(err.stack)
+})
 
-process.on('close', function(code) {
-	main.showInfo('Supervizer server stopped');
-});
+process.on('close', function (code) {
+	main.showInfo('Supervizer server stopped')
+})
 
-server.listen(common.settings.port,common.settings.host);
-main.showInfo('Supervizer Server started at ' + common.settings.host + ':' + common.settings.port);
+server.listen(common.settings.port,common.settings.host)
+main.showInfo('Supervizer Server (v' + common.pkg.version + ') started at (' + common.settings.host + ':' + common.settings.port + ')')
+main.showInfo('Security authentication: ' + (common.settings.auth.enabled ? 'enabled' : 'disabled'))

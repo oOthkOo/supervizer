@@ -130,27 +130,29 @@ Usage (Complete)
     help <command>         print required/allowed options for each command.
     install                install supervizer as daemon
     uninstall              uninstall supervizer as daemon
-    load                   load from a process configuration json file
-    save                   save to a process configuration json file
-    add                    add a node process
-    remove                 remove a node process
-    start                  start a new node process
-    startAll               start all node process
-    stop                   stop a node process
-    stopAll                stop all node process
-    restart                restart a node process
-    restartAll             restart all node process
-    list                   list all node process
-    monit                  monitor all node process
-    set <name>             setting process property value
-    get <name>             getting process properties values
+    load                   load all applications from a JSON config file
+    save                   save all applications to a JSON config file
+    add                    add an application
+    remove                 remove an application
+    start                  start an application
+    startAll               start all applications
+    stop                   stop an application
+    stopAll                stop all applications
+    restart                restart an application
+    restartAll             restart all applications
+    list                   list all applications
+    monit                  monitor all applications
+    secure                 create/update/remove security authentication
+    enable <name>          enable an application
+    disable <name>         disable an application
+    set <name>             setting application property value
+    get <name>             getting application properties values
 
   Options:
 
     -h, --help                  output usage information
     -V, --version               output the version number
     -v --verbose                display verbose data
-    -f --force                  force supervizer actions
     -n --name <string>          specify app name
     -z --env <string>           specify comma separated environment variables
     -x --params <string>        specify node command line extra parameters
@@ -178,7 +180,7 @@ Supervizer daemon has an RESTfull http interface wich allow you to control it re
 |				          | GET   		  | /		            | Show server banner                |
 | load		        |	POST	 	    | /config/load		| Load all apps from file           |
 | save		        |	POST	    	| /config/save		| Save all apps to file             |
-| add		          |	POST		    | /apps				    | Add an app to run                 |
+| add		          |	PUT		      | /apps				    | Add an app to run                 |
 | remove	        |	DELETE	    |	/apps				    | Stop and Remove an app            |
 | start		        | POST		    | /app/start			| Start an app                      |
 | startAll        |	POST		    | /apps/start		  | Start all apps                    |
@@ -188,8 +190,10 @@ Supervizer daemon has an RESTfull http interface wich allow you to control it re
 | restartAll	    | POST	    	| /apps/restart	  | Restart all apps                  |
 | list			      | POST	    	| /apps/list		  |	Get app state list                |
 | monit		        | POST		    | /apps/monit     |	Monitor all apps                  |
+| enable          | POST        | /app/enable     | Enable/Start an app               |
+| disable         | POST        | /app/disable    | Disable/Stop an app               |
 | set			        | POST		    | /app			      |	Set an app property		            |	
-| get			        | GET		    | /app			      |	Get an app property
+| get			        | GET		      | /app			      |	Get an app property               |
 
 TODOs (commands)
 -----
