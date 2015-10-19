@@ -214,13 +214,13 @@ function getPercent ( value, total, text, cleft, cright ) {
 
 function monitApp ( stat ) {
 	
-	console.log('  ' + stat.name)
+	//console.log('  ' + stat.name)
 	
 	var cpu = getPercent(stat.cpu, 100, stat.cpu + ' %', color.bgRedBright(' '), color.bgBlack(' '))
 	var mem = getPercent(stat.mem, os.totalmem(), getHumanBytes(stat.mem), color.bgGreenBright(' '), color.bgBlack(' '))
 	var pid = stat.pid != '' ?	stat.pid : 'N/C'
 	
-	console.log('    - CPU: ' + cpu + ' MEM: ' + mem + ' PID: ' + pid  )	
+	console.log('  ' + padding( stat.name, 15 - stat.name.length, ' ') + '    - CPU: ' + cpu + ' MEM: ' + mem + ' PID: ' + pid  )
 }
 
 function monitAppList ( stats ) {
@@ -234,6 +234,7 @@ function monitAppList ( stats ) {
 		monitApp( stats[s] )		
 	}	
 	console.log()
+	console.log("  Type 'q' to quit monitoring mode.") 
 }
 
 function getHumanBytes (bytes, precision) {
@@ -361,6 +362,12 @@ function getAppTemplate () {
 
 function getCommandOptions () {
 	var options = []
+	if (typeof commander.name != 'undefined') {
+		options.push({
+			name: 'name',
+			value: commander.name
+		})
+	}
 	if (typeof commander.force != 'undefined') {
 		options.push({
 			name: 'force',
@@ -532,33 +539,33 @@ function sendRequest (method, params, callback) {
  */
 commander.version(common.pkg.version)
 	.option('-v --verbose', 'display verbose data')
-	.option('-n --name <string>', 'specify app name')
+	.option('-n --name <string>', 'specify application name')
 	.option('-z --env <string>', 'specify comma separated environment variables', function (value) {
   		return value.split(',')
   	})
 	.option('-x --params <string>', 'specify node command line extra parameters')
-	.option('-r --run <user:group>', 'specify user uid:gid to run app')
-	.option('-g --group <string>', 'specify app group')
-	.option('-s --script <path>', 'specify app main script')
-	.option('-l --log <file>', 'specify app log output file')
-	.option('-t --pid <file>', 'specify app pid file')
-	.option('-k --keep <yes/no>', 'keep alive app (default:yes)')
+	.option('-r --run <user:group>', 'specify user uid:gid to run application')
+	.option('-g --group <string>', 'specify application group')
+	.option('-s --script <path>', 'specify application main script')
+	.option('-l --log <file>', 'specify application log output file')
+	.option('-t --pid <file>', 'specify application pid file')
+	.option('-k --keep <yes/no>', 'keep alive application (default:yes)')
 	.option('-t --attempt <number>', 'max restart to keep alive (default:3)')
 	.option('-w --watch <path>', 'specify path to watch')
 	.option('-e --exclude <regex,regex>', 'specify regexes to exclude paths')
 	.option('-h --host <address>', 'specify address to bind')
 	.option('-p --port <port>', 'specify port to bind')
 	.option('-a --auth <user:password>', 'specify user/password to use')
-	.option('-c --config <file>', 'specify config file to load/save')
+	.option('-c --config <file>', 'specify JSON config file to load/save')
 	.usage('[command] <options>')
 
-commander.command('help <command>')
+/*commander.command('help <command>')
 	.description('print required/allowed options for each command.')
 	.action(function (command) {
 		
 		showError('Sorry this command is not implemented yet.')
 	}
-)
+)*/
 
 commander.command('install')
 	.description('install supervizer as daemon/service')
@@ -693,7 +700,7 @@ commander.command('start')
 		}	
 		var params = getRequestParams( 'app/start', data )
 
-		//console.log( 'params', params )
+		console.log( 'params', params )
 		sendPost( params, function (query) {
 			showInfo(query.success)
 		})
@@ -822,6 +829,7 @@ commander.command('monit')
 			var str = data.toString()
 			if (str &&
 				(str == 'q' || str == 'Q')) {
+				console.log(color.reset)
 				process.exit(SPZ_SUCCESS_EXIT)
 			}
 		})
@@ -839,7 +847,7 @@ commander.command('secure <mode>')
 			mode: mode,
 			options: getCommandOptions()
 		}		
-		var params = getRequestParams( 'app/enable', data )
+		var params = getRequestParams( 'secure', data )
 		
 		//console.log( 'params', params )
 		sendPost( params, function (query) {
@@ -867,6 +875,23 @@ commander.command('enable <name>')
 	}
 )
 
+commander.command('enableAll')
+	.description('enable all applications')
+	.action(function() {
+		
+		var data = {
+			app: getAppTemplate(),
+			options: getCommandOptions()
+		}
+		var params = getRequestParams( 'apps/enable', data )
+
+		//console.log( 'params', params )
+		sendPost( params, function (query) {
+			showInfo(query.success)
+		})
+	}
+)
+
 commander.command('disable <name>')
 	.description('disable application')
 	.action(function (name) {
@@ -879,6 +904,23 @@ commander.command('disable <name>')
 		}		
 		var params = getRequestParams( 'app/disable', data )
 		
+		//console.log( 'params', params )
+		sendPost( params, function (query) {
+			showInfo(query.success)
+		})
+	}
+)
+
+commander.command('disableAll')
+	.description('disable all applications')
+	.action(function() {
+		
+		var data = {
+			app: getAppTemplate(),
+			options: getCommandOptions()
+		}
+		var params = getRequestParams( 'apps/disable', data )
+
 		//console.log( 'params', params )
 		sendPost( params, function (query) {
 			showInfo(query.success)

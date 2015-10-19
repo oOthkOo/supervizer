@@ -1,10 +1,11 @@
 {
 	"host": "localhost",
 	"port": 8200,
-	"auth" : {
+	"auth": {
 		"enabled": false,
-		"user": "admin",
-		"password": "123456"
+		"salt": "",
+		"user": "",
+		"password": ""
 	},
 	"apps": "apps.json",
 	"bin": "node"

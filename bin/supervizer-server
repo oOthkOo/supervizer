@@ -159,7 +159,7 @@ server.post('/apps/stop', function (req, res) {
  */
 server.post('/secure', function (req, res) {  	
 		
-	//console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	//console.log( '[request]:\n' + ' - path: /secure\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.secure(getResult(req))))
 })
 
@@ -173,12 +173,30 @@ server.post('/app/enable', function (req, res) {
 })
 
 /**
+ * POST /apps/enable
+ */
+server.post('/apps/enable', function (req, res) {  	
+		
+	//console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.enableAll(getResult(req))))
+})
+
+/**
  * POST /app/disable
  */
 server.post('/app/disable', function (req, res) {  	
 		
 	//console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.disable(getResult(req))))
+})
+
+/**
+ * POST /apps/disable
+ */
+server.post('/apps/disable', function (req, res) {  	
+		
+	//console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' )
+	res.end(JSON.stringify(main.disableAll(getResult(req))))
 })
 
 /**

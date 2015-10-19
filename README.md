@@ -2,7 +2,7 @@ Supervizer ![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png)
 ========================
 [![NPM](https://nodei.co/npm/supervizer.png?downloads=true)](https://nodei.co/npm/supervizer/)
 
-A NodeJS daemon process manager to spawn/start/stop node app .
+A NodeJS manager to spawn/stop/manage node application.
 
 ``` sh
   supervizer list
@@ -16,21 +16,25 @@ A NodeJS daemon process manager to spawn/start/stop node app .
   supervizer get myApp
 ```
 ![Get command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-get.png)
+``` sh
+  supervizer-master
+```
+![Get command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-master-log.png)
 
 Features
 -----
- * Start/Stop/Restart a node process
- * Group any node process
- * Start/Stop/Restart a node group process
- * Hot change node process host, port, logs in live ;-)
- * Keep alive/Restart a node process when it crash
- * Monitoring resources (restart count, uptime, memory, cpu etc..) for every process
- * Watch directories/files management to restart process
- * Full RESTfull API management via HTTP
- * LOG files process management
- * PID files process management
+ * Start/Stop/Restart a node application
+ * Grouping applications
+ * Start/Stop/Restart a application group
+ * Hot change application parameters (env, host, port, logs) in realtime ;-)
+ * Keep alive/Restart a application when it crash
+ * Monitoring application resources (restart count, uptime, memory, cpu etc..)
+ * Watch directories/files changes to restart application
+ * Full RESTfull API management via HTTP/S
+ * Application LOG files process management
+ * Application PID files process management
  * User execution process management by uid:gid
- * Load/Save all node process configuration from/to json file
+ * Load/Save all application configurations from/to JSON config file
  
 Installation (module)
 -----
@@ -51,13 +55,17 @@ And run this command to start supervizer master server :
 ```
 Installation (master)
 -----
-To install supervizer master as daemon, you must run this command as root :
-``` sh
-  sudo supervizer --install
-```
+To install supervizer master as a daemon/service :
+
+  On Linux :
+
+  With Sysvinit - (https://help.ubuntu.com/community/UbuntuBootupHowto).
+  With Upstart - (http://upstart.ubuntu.com/getting-started.html).
+  With Systemd - (https://wiki.ubuntu.com/SystemdForUpstartUsers).
+
 Configuration (apps)
 -----
-To make your process compatible with Supervizer, you must follow this code example to retrieve host and port parameters :
+To make your nodeJS Application compatible with Supervizer, you must follow this code example to retrieve host and port parameters :
 ``` js
 var host = process.argv[2] || '0.0.0.0';
 var port = process.argv[3] || '5000';
@@ -86,39 +94,66 @@ server.use(function(err, req, res, next) {
 var host = process.argv[2] || '0.0.0.0';
 var port = process.argv[3] || '5000';
 
-server.listen(port,host);
+server.listen(port, host);
 console.log('Listening on port ' + port);
 ```
 Usage (Summary)
 -----
-Add your app :
+Add your application :
 ``` sh
   supervizer add --name myApp --group myGroup --script /path/to/script.js 
   --host localhost --port 3000 --watch /path/to/watch --log /path/to/logfile.log
 ```
-Start your app :
+Start your application :
 ``` sh
   supervizer start --name myApp
 ```
-Stop your app :
+Stop your application :
 ``` sh
   supervizer stop --name myApp
 ```
-Update your app :
+Update your application parameters :
 ``` sh
   supervizer set myApp --port 3001
 ```
-Save all your apps :
+Save all your applications :
 ``` sh
   supervizer save --config /path/to/apps.json
 ```
-Load your apps :
+Load all your applications :
 ``` sh
   supervizer load --config /path/to/apps.json
 ```
-Start all your apps :
+Start all your applications :
 ``` sh
   supervizer startAll  
+```
+Start all applications by group:
+``` sh
+  supervizer startAll --group myGroup
+```
+Disable your application :
+``` sh
+  supervizer disable myApp 
+```
+Security (Authentication)
+-----
+Enable authentication mode :
+``` sh
+  supervizer secure enable --auth myNewUserName:myNewPassword
+```
+Restart your application with authentication :
+``` sh
+  supervizer restart --name myApp --auth myUserName:myPassword
+```
+Disable authentication mode :
+``` sh
+  supervizer secure disable --auth myUserName:myPassword
+```
+Update your credentials :
+``` sh
+  supervizer secure disable --auth myOldUserName:myOldPassword
+  supervizer secure enable --auth myNewUserName:myNewPassword
 ```
 Usage (Complete)
 -----
@@ -127,7 +162,6 @@ Usage (Complete)
 
   Commands:
 
-    help <command>         print required/allowed options for each command.
     install                install supervizer as daemon
     uninstall              uninstall supervizer as daemon
     load                   load all applications from a JSON config file
@@ -144,7 +178,9 @@ Usage (Complete)
     monit                  monitor all applications
     secure                 create/update/remove security authentication
     enable <name>          enable an application
+    enableAll              enable all applications
     disable <name>         disable an application
+    disableAll             disable all applications
     set <name>             setting application property value
     get <name>             getting application properties values
 
@@ -153,61 +189,55 @@ Usage (Complete)
     -h, --help                  output usage information
     -V, --version               output the version number
     -v --verbose                display verbose data
-    -n --name <string>          specify app name
+    -n --name <string>          specify application name
     -z --env <string>           specify comma separated environment variables
     -x --params <string>        specify node command line extra parameters
-    -r --run <user:group>       specify user uid:gid to run app
-    -g --group <string>         specify app group
-    -s --script <path>          specify app main script
-    -l --log <file>             specify app log output file
-    -t --pid <file>             specify app pid file
-    -k --keep <yes/no>          keep alive app (default:yes)
+    -r --run <user:group>       specify user uid:gid to run application
+    -g --group <string>         specify application group
+    -s --script <path>          specify application main script
+    -l --log <file>             specify application log output file
+    -t --pid <file>             specify application pid file
+    -k --keep <yes/no>          keep alive application (default:yes)
     -t --attempt <number>       max restart to keep alive (default:3)
     -w --watch <path>           specify path to watch
     -e --exclude <regex,regex>  specify regexes to exclude paths
     -h --host <address>         specify address to bind
     -p --port <port>            specify port to bind
     -a --auth <user:password>   specify user/password to use
-    -c --config <file>          specify config file to load/save
+    -c --config <file>          specify JSON config file to load/save
 ```
 
 API endpoints
 -----
-Supervizer daemon has an RESTfull http interface wich allow you to control it remotely ;-)
+Supervizer master server has an RESTfull HTTP interface wich allow you to control it remotely ;-)
 
 | COMMANDs        | VERBs       | URIs            | Descriptions                      |
 | ----------------|-------------|-----------------|-----------------------------------|   						
 |				          | GET   		  | /		            | Show server banner                |
-| load		        |	POST	 	    | /config/load		| Load all apps from file           |
-| save		        |	POST	    	| /config/save		| Save all apps to file             |
-| add		          |	PUT		      | /apps				    | Add an app to run                 |
-| remove	        |	DELETE	    |	/apps				    | Stop and Remove an app            |
-| start		        | POST		    | /app/start			| Start an app                      |
-| startAll        |	POST		    | /apps/start		  | Start all apps                    |
-| stop            |	POST		    | /app/stop		    | Stop an app                       |
-| stopAll		      | POST		    | /apps/stop			| Stop all apps                     |
-| restart		      | POST	     	| /app/restart	  | Restart an app                    |
-| restartAll	    | POST	    	| /apps/restart	  | Restart all apps                  |
-| list			      | POST	    	| /apps/list		  |	Get app state list                |
-| monit		        | POST		    | /apps/monit     |	Monitor all apps                  |
-| enable          | POST        | /app/enable     | Enable/Start an app               |
-| disable         | POST        | /app/disable    | Disable/Stop an app               |
-| set			        | POST		    | /app			      |	Set an app property		            |	
-| get			        | GET		      | /app			      |	Get an app property               |
+| load		        |	POST	 	    | /config/load		| Load all applications from file   |
+| save		        |	POST	    	| /config/save		| Save all applications to file     |
+| add		          |	PUT		      | /apps				    | Add an application to run         |
+| remove	        |	DELETE	    |	/apps				    | Stop and Remove an application    |
+| start		        | POST		    | /app/start			| Start an application              |
+| startAll        |	POST		    | /apps/start		  | Start all applications            |
+| stop            |	POST		    | /app/stop		    | Stop an application               |
+| stopAll		      | POST		    | /apps/stop			| Stop all applications             |
+| restart		      | POST	     	| /app/restart	  | Restart an application            |
+| restartAll	    | POST	    	| /apps/restart	  | Restart all applications          |
+| list			      | POST	    	| /apps/list		  |	List all applications             |
+| monit		        | POST		    | /apps/monit     |	Monitor all applications          |
+| list            | POST        | /secure         | enable/disable authentication     |
+| enable          | POST        | /app/enable     | Enable an application             |
+| enableAll       | POST        | /apps/enable    | Enable all applications           |
+| disable         | POST        | /app/disable    | Disable an application            |
+| disableAll      | POST        | /apps/disable   | Disable all applications          |
+| set			        | POST		    | /app			      |	Set an application property		    |	
+| get			        | GET		      | /app			      |	Get an application property       |
 
 TODOs (commands)
 -----
-Theses commands actually doesn't work
+Theses commands actually doesn't work, but you can install easily
+Supervizer master as a service by Systemd, Upstart, Sysvinit or other.
      
-    * help
     * install
     * uninstall
-	
- TODOs (options)
------
-Theses options actually doesn't work
-	
-	* force
-	* auth
-	
-
