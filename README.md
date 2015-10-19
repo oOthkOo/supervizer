@@ -59,13 +59,13 @@ To install supervizer master as a daemon/service :
 
   On Linux :
 
-  With Sysvinit - (https://help.ubuntu.com/community/UbuntuBootupHowto).
-  With Upstart - (http://upstart.ubuntu.com/getting-started.html).
+  With Sysvinit - (https://help.ubuntu.com/community/UbuntuBootupHowto).<br />
+  With Upstart - (http://upstart.ubuntu.com/getting-started.html).<br />
   With Systemd - (https://wiki.ubuntu.com/SystemdForUpstartUsers).
 
 Configuration (apps)
 -----
-To make your nodeJS Application compatible with Supervizer, you must follow this code example to retrieve host and port parameters :
+To make your nodeJS Application fully compatible with Supervizer, you must follow this code example to retrieve host and port parameters :
 ``` js
 var host = process.argv[2] || '0.0.0.0';
 var port = process.argv[3] || '5000';
