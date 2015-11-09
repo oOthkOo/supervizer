@@ -466,7 +466,7 @@ function getCommandOptions () {
 		})
 	}
 	if (typeof commander.env != 'undefined') {
-		console.log('commander.env', commander.env)
+		//console.log('commander.env', commander.env)
 		options.push({
 			name: 'env',
 			value: commander.env
