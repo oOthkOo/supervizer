@@ -1,0 +1,121 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/bin/node', '/usr/local/bin/npm', 'publish', './' ]
+2 info using npm@2.14.7
+3 info using node@v4.2.1
+4 verbose publish [ './' ]
+5 silly cache add args [ './', null ]
+6 verbose cache add spec ./
+7 silly cache add parsed spec Result {
+7 silly cache add   raw: './',
+7 silly cache add   scope: null,
+7 silly cache add   name: null,
+7 silly cache add   rawSpec: './',
+7 silly cache add   spec: '/Users/tierry/workspace/supervizer',
+7 silly cache add   type: 'directory' }
+8 verbose addLocalDirectory /Users/tierry/.npm/supervizer/0.3.5/package.tgz not in flight; packing
+9 verbose tar pack [ '/Users/tierry/.npm/supervizer/0.3.5/package.tgz',
+9 verbose tar pack   '/Users/tierry/workspace/supervizer' ]
+10 verbose tarball /Users/tierry/.npm/supervizer/0.3.5/package.tgz
+11 verbose folder /Users/tierry/workspace/supervizer
+12 info prepublish supervizer@0.3.5
+13 verbose addLocalTarball adding from inside cache /Users/tierry/.npm/supervizer/0.3.5/package.tgz
+14 silly cache afterAdd supervizer@0.3.5
+15 verbose afterAdd /Users/tierry/.npm/supervizer/0.3.5/package/package.json not in flight; writing
+16 verbose afterAdd /Users/tierry/.npm/supervizer/0.3.5/package/package.json written
+17 silly publish { name: 'supervizer',
+17 silly publish   preferGlobal: 'true',
+17 silly publish   version: '0.3.5',
+17 silly publish   engines: { node: '>=0.8' },
+17 silly publish   author:
+17 silly publish    { name: 'Tierry Danquin',
+17 silly publish      email: 'tierry.danquin@gmail.com',
+17 silly publish      url: 'http://www.oothkoo.com' },
+17 silly publish   homepage: 'https://github.com/oOthkOo/supervizer',
+17 silly publish   description: 'NodeJS Application Management',
+17 silly publish   main: 'index.js',
+17 silly publish   keywords:
+17 silly publish    [ 'cli',
+17 silly publish      'node js',
+17 silly publish      'application management',
+17 silly publish      'management',
+17 silly publish      'fault tolerant',
+17 silly publish      'sysadmin',
+17 silly publish      'tools',
+17 silly publish      'supervizer',
+17 silly publish      'monitoring',
+17 silly publish      'process manager',
+17 silly publish      'forever',
+17 silly publish      'process configuration',
+17 silly publish      'clustering',
+17 silly publish      'cluster cli',
+17 silly publish      'cluster' ],
+17 silly publish   bin:
+17 silly publish    { supervizer: './bin/supervizer-client',
+17 silly publish      'supervizer-server': './bin/supervizer-server' },
+17 silly publish   dependencies:
+17 silly publish    { commander: '1.2.0',
+17 silly publish      'cli-table': '0.3.1',
+17 silly publish      'cli-color': '1.1.0',
+17 silly publish      usage: '0.7.1',
+17 silly publish      express: '4.13.3',
+17 silly publish      'body-parser': '1.14.1',
+17 silly publish      request: '2.65.0' },
+17 silly publish   devDependencies: { mocha: '1.x', should: '' },
+17 silly publish   license: 'Free',
+17 silly publish   readme: 'Supervizer ![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png)\n========================\n[![NPM](https://nodei.co/npm/supervizer.png?downloads=true)](https://nodei.co/npm/supervizer/)\n\nA NodeJS manager to spawn/stop/manage node application.\n\n``` sh\n  supervizer list\n```\n![List command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-list.png)\n``` sh\n  supervizer monit\n```\n![Monit command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-monit.png)\n``` sh\n  supervizer get myApp\n```\n![Get command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-get.png)\n``` sh\n  supervizer-master\n```\n![Get command](https://raw.github.com/oOthkOo/supervizer/master/screenshots/supervizer-master-log.png)\n\nFeatures\n-----\n * Start/Stop/Restart a node application\n * Grouping applications\n * Start/Stop/Restart a application group\n * Hot change application parameters (env, host, port, logs) in realtime ;-)\n * Keep alive/Restart a application when it crash\n * Monitoring application resources (restart count, uptime, memory, cpu etc..)\n * Watch directories/files changes to restart application\n * Full RESTfull API management via HTTP/S\n * Application LOG files process management\n * Application PID files process management\n * User execution process management by uid:gid\n * Load/Save all application configurations from/to JSON config file\n \nInstallation (module)\n-----\nTo install node supervizer module from npm repository :\n``` sh\n  npm install -g supervizer\n```\nOr from source:\n``` sh\n  git clone git://github.com/oOthkOo/supervizer.git \n  cd supervizer\n  npm link -g\n```\nAnd run this command to start supervizer master server :\n\n``` sh\n  supervizer-server\n```\nInstallation (master)\n-----\nTo install supervizer master as a daemon/service :\n\n  On Linux :\n\n  With Sysvinit - (https://help.ubuntu.com/community/UbuntuBootupHowto).<br />\n  With Upstart - (http://upstart.ubuntu.com/getting-started.html).<br />\n  With Systemd - (https://wiki.ubuntu.com/SystemdForUpstartUsers).\n\nConfiguration (apps)\n-----\nTo make your nodeJS Application fully compatible with Supervizer, you must follow this code example to retrieve host and port parameters :\n``` js\nvar host = process.argv[2] || \'0.0.0.0\';\nvar port = process.argv[3] || \'5000\';\n```\nFor example, if you use expressjs framework :\n``` js\nvar express = require(\'express\');\nvar server = express();\n\nserver.use(express.static(__dirname + \'/public\'));\nserver.use(express.logger());\n\nserver.get(\'/\', function(req, res) {  \t\n\tres.end(\'Hello word!\');\n});\n\nserver.get(\'*\', function(req, res) {\n  \tres.send(\'Not Found!\', 404);\n});\n\nserver.use(function(err, req, res, next) {  \t\n  \tres.send(500, \'Something broke!\');\n\tconsole.error(err.stack);\n});\n\nvar host = process.argv[2] || \'0.0.0.0\';\nvar port = process.argv[3] || \'5000\';\n\nserver.listen(port, host);\nconsole.log(\'Listening on port \' + port);\n```\nUsage (Summary)\n-----\nAdd your application :\n``` sh\n  supervizer add --name myApp --group myGroup --script /path/to/script.js \n  --host localhost --port 3000 --watch /path/to/watch --log /path/to/logfile.log\n```\nStart your application :\n``` sh\n  supervizer start --name myApp\n```\nStop your application :\n``` sh\n  supervizer stop --name myApp\n```\nUpdate your application parameters :\n``` sh\n  supervizer set myApp --port 3001\n```\nSave all your applications :\n``` sh\n  supervizer save --config /path/to/apps.json\n```\nLoad all your applications :\n``` sh\n  supervizer load --config /path/to/apps.json\n```\nStart all your applications :\n``` sh\n  supervizer startAll  \n```\nStart all applications by group:\n``` sh\n  supervizer startAll --group myGroup\n```\nDisable your application :\n``` sh\n  supervizer disable myApp \n```\nSecurity (Authentication)\n-----\nEnable authentication mode :\n``` sh\n  supervizer secure enable --auth myNewUserName:myNewPassword\n```\nRestart your application with authentication :\n``` sh\n  supervizer restart --name myApp --auth myUserName:myPassword\n```\nDisable authentication mode :\n``` sh\n  supervizer secure disable --auth myUserName:myPassword\n```\nUpdate your credentials :\n``` sh\n  supervizer secure disable --auth myOldUserName:myOldPassword\n  supervizer secure enable --auth myNewUserName:myNewPassword\n```\nUsage (Complete)\n-----\n``` sh\n  supervizer [command] <options>\n\n  Commands:\n\n    install                install supervizer as daemon\n    uninstall              uninstall supervizer as daemon\n    load                   load all applications from a JSON config file\n    save                   save all applications to a JSON config file\n    add                    add an application\n    remove                 remove an application\n    start                  start an application\n    startAll               start all applications\n    stop                   stop an application\n    stopAll                stop all applications\n    restart                restart an application\n    restartAll             restart all applications\n    list                   list all applications\n    monit                  monitor all applications\n    secure                 create/update/remove security authentication\n    enable <name>          enable an application\n    enableAll              enable all applications\n    disable <name>         disable an application\n    disableAll             disable all applications\n    set <name>             setting application property value\n    get <name>             getting application properties values\n\n  Options:\n\n    -h, --help                  output usage information\n    -V, --version               output the version number\n    -v --verbose                display verbose data\n    -n --name <string>          specify application name\n    -z --env <string>           specify comma separated environment variables\n    -x --params <string>        specify node command line extra parameters\n    -r --run <user:group>       specify user uid:gid to run application\n    -g --group <string>         specify application group\n    -s --script <path>          specify application main script\n    -l --log <file>             specify application log output file\n    -t --pid <file>             specify application pid file\n    -k --keep <yes/no>          keep alive application (default:yes)\n    -t --attempt <number>       max restart to keep alive (default:3)\n    -w --watch <path>           specify path to watch\n    -e --exclude <regex,regex>  specify regexes to exclude paths\n    -h --host <address>         specify address to bind\n    -p --port <port>            specify port to bind\n    -a --auth <user:password>   specify user/password to use\n    -c --config <file>          specify JSON config file to load/save\n```\n\nAPI endpoints\n-----\nSupervizer master server has an RESTfull HTTP interface wich allow you to control it remotely ;-)\n\n| COMMANDs        | VERBs       | URIs            | Descriptions                      |\n| ----------------|-------------|-----------------|-----------------------------------|   \t\t\t\t\t\t\n|\t\t\t\t          | GET   \t\t  | /\t\t            | Show server banner                |\n| load\t\t        |\tPOST\t \t    | /config/load\t\t| Load all applications from file   |\n| save\t\t        |\tPOST\t    \t| /config/save\t\t| Save all applications to file     |\n| add\t\t          |\tPUT\t\t      | /apps\t\t\t\t    | Add an application to run         |\n| remove\t        |\tDELETE\t    |\t/apps\t\t\t\t    | Stop and Remove an application    |\n| start\t\t        | POST\t\t    | /app/start\t\t\t| Start an application              |\n| startAll        |\tPOST\t\t    | /apps/start\t\t  | Start all applications            |\n| stop            |\tPOST\t\t    | /app/stop\t\t    | Stop an application               |\n| stopAll\t\t      | POST\t\t    | /apps/stop\t\t\t| Stop all applications             |\n| restart\t\t      | POST\t     \t| /app/restart\t  | Restart an application            |\n| restartAll\t    | POST\t    \t| /apps/restart\t  | Restart all applications          |\n| list\t\t\t      | POST\t    \t| /apps/list\t\t  |\tList all applications             |\n| monit\t\t        | POST\t\t    | /apps/monit     |\tMonitor all applications          |\n| list            | POST        | /secure         | enable/disable authentication     |\n| enable          | POST        | /app/enable     | Enable an application             |\n| enableAll       | POST        | /apps/enable    | Enable all applications           |\n| disable         | POST        | /app/disable    | Disable an application            |\n| disableAll      | POST        | /apps/disable   | Disable all applications          |\n| set\t\t\t        | POST\t\t    | /app\t\t\t      |\tSet an application property\t\t    |\t\n| get\t\t\t        | GET\t\t      | /app\t\t\t      |\tGet an application property       |\n\nTODOs (commands)\n-----\nTheses commands actually doesn\'t work, but you can install easily\nSupervizer master as a service by Systemd, Upstart, Sysvinit or other.\n     \n    * install\n    * uninstall\n',
+17 silly publish   readmeFilename: 'README.md',
+17 silly publish   gitHead: '87a137c4f100d54a18e1ce5918e38928f7c6d2be',
+17 silly publish   _id: 'supervizer@0.3.5',
+17 silly publish   scripts: {},
+17 silly publish   _shasum: 'bf898ef84cea03fcda600f1f4486852a1efff522',
+17 silly publish   _from: '.' }
+18 verbose getPublishConfig undefined
+19 silly mapToRegistry name supervizer
+20 silly mapToRegistry using default registry
+21 silly mapToRegistry registry https://registry.npmjs.org/
+22 silly mapToRegistry uri https://registry.npmjs.org/supervizer
+23 verbose publish registryBase https://registry.npmjs.org/
+24 silly publish uploading /Users/tierry/.npm/supervizer/0.3.5/package.tgz
+25 verbose request uri https://registry.npmjs.org/supervizer
+26 verbose request sending authorization for write operation
+27 info attempt registry request try #1 at 4:16:40 PM
+28 verbose request using bearer token for auth
+29 verbose request id 038be04e5de179de
+30 http request PUT https://registry.npmjs.org/supervizer
+31 http 403 https://registry.npmjs.org/supervizer
+32 verbose headers { 'content-type': 'application/json',
+32 verbose headers   'cache-control': 'max-age=60',
+32 verbose headers   'content-length': '95',
+32 verbose headers   'accept-ranges': 'bytes',
+32 verbose headers   date: 'Mon, 09 Nov 2015 15:16:43 GMT',
+32 verbose headers   via: '1.1 varnish',
+32 verbose headers   connection: 'keep-alive',
+32 verbose headers   'x-served-by': 'cache-ams4129-AMS',
+32 verbose headers   'x-cache': 'MISS',
+32 verbose headers   'x-cache-hits': '0',
+32 verbose headers   'x-timer': 'S1447082201.104099,VS0,VE1927' }
+33 verbose request invalidating /Users/tierry/.npm/registry.npmjs.org/supervizer on PUT
+34 error publish Failed PUT 403
+35 verbose stack Error: "You cannot publish over the previously published version 0.3.5." : supervizer
+35 verbose stack     at makeError (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:264:12)
+35 verbose stack     at CachingRegistryClient.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:252:14)
+35 verbose stack     at Request._callback (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:172:14)
+35 verbose stack     at Request.self.callback (/usr/local/lib/node_modules/npm/node_modules/request/request.js:198:22)
+35 verbose stack     at emitTwo (events.js:87:13)
+35 verbose stack     at Request.emit (events.js:172:7)
+35 verbose stack     at Request.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:1063:14)
+35 verbose stack     at emitOne (events.js:82:20)
+35 verbose stack     at Request.emit (events.js:169:7)
+35 verbose stack     at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:1009:12)
+36 verbose statusCode 403
+37 verbose pkgid supervizer
+38 verbose cwd /Users/tierry/workspace/supervizer
+39 error Darwin 14.5.0
+40 error argv "/usr/local/bin/node" "/usr/local/bin/npm" "publish" "./"
+41 error node v4.2.1
+42 error npm  v2.14.7
+43 error code E403
+44 error "You cannot publish over the previously published version 0.3.5." : supervizer
+45 error If you need help, you may report this error at:
+45 error     <https://github.com/npm/npm/issues>
+46 verbose exit [ 1, true ]
