@@ -384,8 +384,8 @@ function getCommandOptions () {
 		options.push({
 			name: 'run',
 			value: {
-				user: commander.run.split(':')[0],
-				group: commander.run.split(':')[1]
+				uid: commander.run.split(':')[0],
+				gid: commander.run.split(':')[1]
 			}
 		})
 	}
