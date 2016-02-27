@@ -1,6 +1,6 @@
 Supervizer ![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png)
 ========================
-[![NPM](https://nodei.co/npm/supervizer.png?downloads=true)](https://nodei.co/npm/supervizer/)
+[![NPM](https://nodei.co/npm/supervizer.png?downloads=true)](https://nodei.co/npm/supervizer/) [![NPM](https://nodei.co/npm-dl/supervizer.png?months=5&height=2)](https://nodei.co/npm/supervizer/)
 
 A NodeJS manager to spawn/stop/manage node application.
 
