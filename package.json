@@ -41,7 +41,7 @@
         "usage": "0.7.1",
         "express": "4.13.3",
         "body-parser": "1.14.1",
-        "request": "2.65.0"
+        "request": "2.74.0"
     },
     "devDependencies": {
         "mocha": "1.x",
