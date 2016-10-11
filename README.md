@@ -1,4 +1,4 @@
-Supervizer ![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png)
+Supervizer ![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png) [![SlugBay Badge](https://www.slugbay.com/pictures/badges/slugbay-simple.svg)](https://www.slugbay.com)
 ========================
 [![NPM](https://nodei.co/npm/supervizer.png?downloads=true)](https://nodei.co/npm/supervizer/) [![NPM](https://nodei.co/npm-dl/supervizer.png?months=5&height=2)](https://nodei.co/npm/supervizer/)
 
