@@ -9,10 +9,10 @@
         "name": "Tierry Danquin",
         "email": "tierry.danquin@gmail.com",
         "url": "http://www.oothkoo.com"
-    },  
+    },
     "homepage" : "https://github.com/oOthkOo/supervizer",
     "description": "NodeJS Application Management",
-    "main": "index.js",  
+    "main": "index.js",
     "keywords": [
         "cli",
         "node js",
@@ -46,6 +46,6 @@
     "devDependencies": {
         "mocha": "1.x",
         "should": ""
-    },  
-    "license": "Free"
+    },
+    "license": "MIT"
 }
