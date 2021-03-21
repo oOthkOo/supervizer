@@ -4,6 +4,7 @@ Supervizer ![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png) [![Slu
 [![Latest Stable Version](https://img.shields.io/npm/v/supervizer.svg?style=for-the-badge)](https://www.npmjs.com/package/supervizer)
 [![NPM Downloads](https://img.shields.io/npm/dt/supervizer.svg?style=for-the-badge)](https://www.npmjs.com/package/supervizer)
 [![NPM Downloads](https://img.shields.io/npm/dm/supervizer.svg?style=for-the-badge)](https://www.npmjs.com/package/supervizer)
+
 A NodeJS manager to spawn/stop/manage node application.
 
 ``` sh
