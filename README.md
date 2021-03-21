@@ -1,9 +1,9 @@
 Supervizer ![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png) [![SlugBay Badge](https://www.slugbay.com/pictures/badges/slugbay-simple.svg)](https://www.slugbay.com)
 ========================
 [![Stars](https://img.shields.io/github/stars/oOthkOo/supervizer.svg?style=for-the-badge)](https://github.com/oOthkOo/supervizer)
-[![Latest Stable Version](https://img.shields.io/npm/v/oOthkOo/supervizer.svg?style=for-the-badge)](https://www.npmjs.com/package/oOthkOo/supervizer)
-[![NPM Downloads](https://img.shields.io/npm/dt/oOthkOo/supervizer.svg?style=for-the-badge)](https://www.npmjs.com/package/oOthkOo/supervizer)
-[![NPM Downloads](https://img.shields.io/npm/dm/oOthkOo/supervizer.svg?style=for-the-badge)](https://www.npmjs.com/package/oOthkOo/supervizer)
+[![Latest Stable Version](https://img.shields.io/npm/v/supervizer.svg?style=for-the-badge)](https://www.npmjs.com/package/supervizer)
+[![NPM Downloads](https://img.shields.io/npm/dt/supervizer.svg?style=for-the-badge)](https://www.npmjs.com/package/supervizer)
+[![NPM Downloads](https://img.shields.io/npm/dm/supervizer.svg?style=for-the-badge)](https://www.npmjs.com/package/supervizer)
 A NodeJS manager to spawn/stop/manage node application.
 
 ``` sh
