@@ -1,7 +1,9 @@
 Supervizer ![Travis Status](https://travis-ci.org/oOthkOo/supervizer.png) [![SlugBay Badge](https://www.slugbay.com/pictures/badges/slugbay-simple.svg)](https://www.slugbay.com)
 ========================
-[![NPM](https://nodei.co/npm/supervizer.png?downloads=true)](https://nodei.co/npm/supervizer/) [![NPM](https://nodei.co/npm-dl/supervizer.png?months=5&height=2)](https://nodei.co/npm/supervizer/)
-
+[![Stars](https://img.shields.io/github/stars/oothkoo/supervizer.svg?style=for-the-badge)](https://github.com/oothkoo/supervizer)
+[![Latest Stable Version](https://img.shields.io/npm/v/oothkoo/supervizer.svg?style=for-the-badge)](https://www.npmjs.com/package/oothkoo/supervizer)
+[![NPM Downloads](https://img.shields.io/npm/dt/oothkoo/supervizer.svg?style=for-the-badge)](https://www.npmjs.com/package/oothkoo/supervizer)
+[![NPM Downloads](https://img.shields.io/npm/dm/oothkoo/supervizer.svg?style=for-the-badge)](https://www.npmjs.com/package/oothkoo/supervizer)
 A NodeJS manager to spawn/stop/manage node application.
 
 ``` sh
@@ -35,7 +37,7 @@ Features
  * Application PID files process management
  * User execution process management by uid:gid
  * Load/Save all application configurations from/to JSON config file
- 
+
 Installation (module)
 -----
 To install node supervizer module from npm repository :
@@ -44,7 +46,7 @@ To install node supervizer module from npm repository :
 ```
 Or from source:
 ``` sh
-  git clone git://github.com/oOthkOo/supervizer.git 
+  git clone git://github.com/oOthkOo/supervizer.git
   cd supervizer
   npm link -g
 ```
@@ -101,7 +103,7 @@ Usage (Summary)
 -----
 Add your application :
 ``` sh
-  supervizer add --name myApp --group myGroup --script /path/to/script.js 
+  supervizer add --name myApp --group myGroup --script /path/to/script.js
   --host localhost --port 3000 --watch /path/to/watch --log /path/to/logfile.log
 ```
 Start your application :
@@ -134,7 +136,7 @@ Start all applications by group:
 ```
 Disable your application :
 ``` sh
-  supervizer disable myApp 
+  supervizer disable myApp
 ```
 Security (Authentication)
 -----
@@ -231,13 +233,13 @@ Supervizer master server has an RESTfull HTTP interface wich allow you to contro
 | enableAll       | POST        | /apps/enable    | Enable all applications           |
 | disable         | POST        | /app/disable    | Disable an application            |
 | disableAll      | POST        | /apps/disable   | Disable all applications          |
-| set			        | POST		    | /app			      |	Set an application property		    |	
+| set			        | POST		    | /app			      |	Set an application property		    |
 | get			        | GET		      | /app			      |	Get an application property       |
 
 TODOs (commands)
 -----
 Theses commands actually doesn't work, but you can install easily
 Supervizer master as a service by Systemd, Upstart, Sysvinit or other.
-     
+
     * install
     * uninstall
