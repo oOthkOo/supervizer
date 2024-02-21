@@ -1,16 +1,13 @@
 {
     "name": "supervizer",
     "preferGlobal": "true",
-    "version": "0.4.1",
-    "engines" : {
-        "node" : ">=0.10"
-    },
+    "version": "1.0.0",
     "author": {
         "name": "Tierry Danquin",
         "email": "tierry.danquin@gmail.com",
         "url": "http://www.oothkoo.com"
     },
-    "homepage" : "https://github.com/oOthkOo/supervizer",
+    "homepage": "https://github.com/oOthkOo/supervizer",
     "description": "The most simple NodeJS application manager with RESTful API.",
     "main": "index.js",
     "keywords": [
@@ -35,13 +32,13 @@
         "supervizer-server": "./bin/supervizer-server"
     },
     "dependencies": {
-        "commander": "1.2.0",
-        "cli-table" : "0.3.1",
-        "cli-color" : "1.1.0",
-        "usage": "0.7.1",
-        "express": "4.13.3",
-        "body-parser": "1.14.1",
-        "request": "2.74.0"
+        "axios": "^0.27.2",
+        "body-parser": "1.20.0",
+        "cli-color": "2.0.3",
+        "cli-table": "0.3.11",
+        "commander": "9.4.0",
+        "express": "4.18.1",
+        "pidusage": "^3.0.0"
     },
     "devDependencies": {
         "mocha": "1.x",

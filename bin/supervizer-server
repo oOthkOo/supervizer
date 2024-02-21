@@ -11,9 +11,9 @@ server.use(bodyParser.json())
 
 /**
  * API endpoints
- * 
+ *
  * COMMANDs		VERBs		URIs				Descriptions
- * 
+ *
  * 				GET   		/					Show server banner
  * load			POST		/config/load		Load all apps from file
  * save			POST		/config/save		Save all apps to file
@@ -30,11 +30,11 @@ server.use(bodyParser.json())
  * secure		POST		/secure				Enable/Disable authentication
  * enable		POST		/app/enable			Enable/Start an app
  * disable		POST		/app/disable		Disable/Stop an app
- * set			POST		/app				Set an app property		
+ * set			POST		/app				Set an app property
  * get			POST		/app				Get an app property
  */
 
-function getResult ( req ) {
+function getResult (req) {
 	req.body.ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
 	return req.body
 }
@@ -42,15 +42,15 @@ function getResult ( req ) {
 /**
  * GET /
  */
-server.get('/', function (req, res) {  	
+server.get('/', (req, res) => {
 	res.end('Supervizer server v' + common.pkg.version)
 })
 
 /**
  * GET /config/load
  */
-server.post('/config/load', function (req, res) {  	
-		
+server.post('/config/load', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /config/load\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.load(getResult(req))))
 })
@@ -58,8 +58,8 @@ server.post('/config/load', function (req, res) {
 /**
  * POST /config/save
  */
-server.post('/config/save', function (req, res) {  	
-		
+server.post('/config/save', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /config/save\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.save(getResult(req))))
 })
@@ -67,8 +67,8 @@ server.post('/config/save', function (req, res) {
 /**
  * PUT /apps
  */
-server.put('/apps', function (req, res) {  	
-		
+server.put('/apps', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /apps\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.add(getResult(req))))
 })
@@ -76,8 +76,8 @@ server.put('/apps', function (req, res) {
 /**
  * DELETE /apps
  */
-server.delete('/apps', function (req, res) {  	
-		
+server.delete('/apps', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /apps\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.remove(getResult(req))))
 })
@@ -85,8 +85,8 @@ server.delete('/apps', function (req, res) {
 /**
  * POST /app
  */
-server.post('/app', function (req, res) {  	
-		
+server.post('/app', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /app\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.set(getResult(req))))
 })
@@ -94,8 +94,8 @@ server.post('/app', function (req, res) {
 /**
  * GET /app
  */
-server.get('/app', function (req, res) {  	
-		
+server.get('/app', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /app\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.get(getResult(req))))
 })
@@ -103,8 +103,8 @@ server.get('/app', function (req, res) {
 /**
  * POST /app/start
  */
-server.post('/app/start', function (req, res) {  	
-		
+server.post('/app/start', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.start(getResult(req))))
 })
@@ -112,8 +112,8 @@ server.post('/app/start', function (req, res) {
 /**
  * POST /apps/start
  */
-server.post('/apps/start', function (req, res) {  	
-		
+server.post('/apps/start', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /apps/start\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.startAll(getResult(req))))
 })
@@ -121,8 +121,8 @@ server.post('/apps/start', function (req, res) {
 /**
  * POST /app/restart
  */
-server.post('/app/restart', function (req, res) {  	
-		
+server.post('/app/restart', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /app/restart\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.restart(getResult(req))))
 })
@@ -130,8 +130,8 @@ server.post('/app/restart', function (req, res) {
 /**
  * POST /apps/restart
  */
-server.post('/apps/restart', function (req, res) {  	
-		
+server.post('/apps/restart', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /apps/restart\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.restartAll(getResult(req))))
 })
@@ -139,8 +139,8 @@ server.post('/apps/restart', function (req, res) {
 /**
  * POST /app/stop
  */
-server.post('/app/stop', function (req, res) {  	
-		
+server.post('/app/stop', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /app/stop\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.stop(getResult(req))))
 })
@@ -148,8 +148,8 @@ server.post('/app/stop', function (req, res) {
 /**
  * POST /apps/stop
  */
-server.post('/apps/stop', function (req, res) {  	
-		
+server.post('/apps/stop', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /apps/stop\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.stopAll(getResult(req))))
 })
@@ -157,8 +157,8 @@ server.post('/apps/stop', function (req, res) {
 /**
  * POST /secure
  */
-server.post('/secure', function (req, res) {  	
-		
+server.post('/secure', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /secure\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.secure(getResult(req))))
 })
@@ -166,8 +166,8 @@ server.post('/secure', function (req, res) {
 /**
  * POST /app/enable
  */
-server.post('/app/enable', function (req, res) {  	
-		
+server.post('/app/enable', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.enable(getResult(req))))
 })
@@ -175,8 +175,8 @@ server.post('/app/enable', function (req, res) {
 /**
  * POST /apps/enable
  */
-server.post('/apps/enable', function (req, res) {  	
-		
+server.post('/apps/enable', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.enableAll(getResult(req))))
 })
@@ -184,8 +184,8 @@ server.post('/apps/enable', function (req, res) {
 /**
  * POST /app/disable
  */
-server.post('/app/disable', function (req, res) {  	
-		
+server.post('/app/disable', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.disable(getResult(req))))
 })
@@ -193,8 +193,8 @@ server.post('/app/disable', function (req, res) {
 /**
  * POST /apps/disable
  */
-server.post('/apps/disable', function (req, res) {  	
-		
+server.post('/apps/disable', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /app/start\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.disableAll(getResult(req))))
 })
@@ -202,8 +202,8 @@ server.post('/apps/disable', function (req, res) {
 /**
  * POST /apps/list
  */
-server.post('/apps/list', function (req, res) {
-	
+server.post('/apps/list', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /apps/list\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.list(getResult(req))))
 })
@@ -211,23 +211,23 @@ server.post('/apps/list', function (req, res) {
 /**
  * POST /apps/monit
  */
-server.post('/apps/monit', function (req, res) {
-	
+server.post('/apps/monit', (req, res) => {
+
 	//console.log( '[request]:\n' + ' - path: /apps/monit\n - receive: ' + JSON.stringify(req.body) + '\n' )
 	res.end(JSON.stringify(main.monit(getResult(req))))
 })
 
-server.all('*', function (req, res) {
+server.all('*', (req, res) => {
   	res.status(404).send('NotFound Server Error')
 })
 
-server.use(function (err, req, res, next) {  	
+server.use((err, req, res, next) => {
   	res.status(500).send('Internal Server Error')
   	main.showError('A fatal error occured')
 	console.error(err.stack)
 })
 
-process.on('close', function (code) {
+process.on('close', (code) => {
 	main.showInfo('Supervizer server stopped')
 })
 

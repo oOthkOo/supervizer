@@ -11,7 +11,7 @@ var main = require('../lib/main')
 var path = require('path')
 var Table = require('cli-table')
 var commander = require('commander')
-var request = require('request')
+var axios = require('axios')
 var color = require('cli-color')
 var os = require('os')
 
@@ -29,11 +29,11 @@ var serverHost = 'http://' + common.settings.host + ':' + common.settings.port +
 /**
  * All private functions
  */
-function showError ( message ) {
+function showError (message) {
 	console.log('\n\033[31m  [ERROR]: ' + message + '\x1B[39m\n')
 }
 
-function showHttpError ( code ) {
+function showHttpError (code) {
 	var message = ''
 	switch (code) {
 		case 500:
@@ -51,15 +51,15 @@ function showHttpError ( code ) {
 		default:
 			message = '(System:' + code + ') - An unknow error occured.'
 			break
-	}	
-	showError( message )
+	}
+	showError(message)
 }
 
-function showInfo ( message ) {
+function showInfo (message) {
 	console.log('\n\033[32m  [INFO]: ' + message + '\x1B[39m\n')
 }
 
-function listFormat ( type, value ) {
+function listFormat (type, value) {
 	var cfrb = color.xterm(9).bold
 	var cfgb = color.xterm(10).bold
 	switch (type) {
@@ -87,17 +87,13 @@ function listFormat ( type, value ) {
 	return ''
 }
 
-function showAppList ( apps ) {
-	
-	if ( !apps ||
+function showAppList (apps) {
+	if (!apps ||
 		apps.length < 1 ) {
-
 		showInfo('No apps found.')
 		return
 	}
-
 	var cfbb = color.blueBright.bold
-	
 	var table = new Table({
 	    head: [
 	    	cfbb('id'),
@@ -114,9 +110,9 @@ function showAppList ( apps ) {
 	    ],
 	    colWidths: [
 	    	5, 15, 7, 12, 15, 10, 8, 9, 15, 7, 12
-	    ]	    
+	    ]
 	})
-	
+
 	for (var a=0; a<apps.length; a++) {
 		var app = apps[a]
 		table.push([
@@ -133,19 +129,17 @@ function showAppList ( apps ) {
 		    listFormat('uptime', app.status == 'up' ? app.started : null)
 		])
 	}
-
 	console.log(table.toString())
 }
 
-function getDateValue ( timestamp ) {
+function getDateValue (timestamp) {
 	if (!timestamp || timestamp < 1) {
 		return ''
-	}	
+	}
 	return main.formatDate(new Date(timestamp),"%Y-%m-%d %H:%M:%S",false)
 }
 
-function showAppProperties ( app ) {
-
+function showAppProperties (app) {
 	console.log('[name           ]: ' + app.name)
 	console.log('[group          ]: ' + app.group)
 	console.log('[uid            ]: ' + (app.uid != '' ? app.uid : 'N/C' ) )
@@ -162,7 +156,7 @@ function showAppProperties ( app ) {
 	console.log('[params         ]: ' + app.params)
 	console.log('[env            ]: ' + (app.env != '' ? app.env.join(',') : '' ) )
 	console.log('[watch          ]: ' + (app.watch.enabled != '' ? 'yes' : 'no'))
-	if (app.watch.enabled) {		
+	if (app.watch.enabled) {
 		console.log('[watch.path     ]: ' + app.watch.path)
 		if (app.watch.excludes) {
 			for (var e=0; e<app.watch.excludes.length; e++) {
@@ -172,10 +166,10 @@ function showAppProperties ( app ) {
 		}
 	}
 	console.log('[keep           ]: ' + (app.keep ? 'yes' : 'no'))
-	if (app.keep) {		
+	if (app.keep) {
 		console.log('[keep.attempt   ]: ' + app.curAttempt)
 		console.log('[keep.max       ]: ' + app.attempt)
-	}	
+	}
 	if (app.files) {
 		console.log('[log.file       ]: ' + (app.files.log || 'N/C'))
 		console.log('[pid.file       ]: ' + (app.files.pid || 'N/C'))
@@ -188,22 +182,20 @@ function showAppProperties ( app ) {
 	console.log('[stats.memory   ]: ' + getHumanBytes(app.stats.memory))
 }
 
-function padding ( text, count, char ) {	
+function padding (text, count, char) {
 	for (var i=0; i<count; i++) {
 		text += char
 	}
 	return text
 }
 
-function getPercent ( value, total, text, cleft, cright ) {
-	
+function getPercent (value, total, text, cleft, cright) {
 	text = padding( text, 8-text.length, ' ')
 	var percent = Math.round(Math.min((value / total) * 100,100) / 3.33)
-	
 	var gauge = ''
 	for (var i=1; i<31; i++) {
 		if (i <= percent) {
-			gauge += cleft			
+			gauge += cleft
 		}
 		else {
 			gauge += cright
@@ -212,57 +204,44 @@ function getPercent ( value, total, text, cleft, cright ) {
 	return '[' + gauge + '] ' + text
 }
 
-function monitApp ( stat ) {
-	
-	//console.log('  ' + stat.name)
-	
+function monitApp (stat) {
 	var cpu = getPercent(stat.cpu, 100, stat.cpu + ' %', color.bgRedBright(' '), color.bgBlack(' '))
 	var mem = getPercent(stat.mem, os.totalmem(), getHumanBytes(stat.mem), color.bgGreenBright(' '), color.bgBlack(' '))
 	var pid = stat.pid != '' ?	stat.pid : 'N/C'
-	
 	console.log('  ' + padding( stat.name, 15 - stat.name.length, ' ') + '    - CPU: ' + cpu + ' MEM: ' + mem + ' PID: ' + pid  )
 }
 
-function monitAppList ( stats ) {
-	
+function monitAppList (stats) {
 	console.log(color.reset)
-	
 	process.stdout.write(color.move.to(1,1))
 	console.log(color.bold('[* Supervizer *] v' + common.pkg.version + ' - ' + stats.length + ' app(s).'))
 	console.log()
 	for (var s=0; s<stats.length; s++) {
-		monitApp( stats[s] )		
-	}	
+		monitApp(stats[s])
+	}
 	console.log()
-	console.log("  Type 'q' to quit monitoring mode.") 
+	console.log("  Type 'q' to quit monitoring mode.")
 }
 
 function getHumanBytes (bytes, precision) {
-	//console.log('bytes', bytes)
-
 	var kilobyte = 1024
 	var megabyte = kilobyte * 1024
 	var gigabyte = megabyte * 1024
 	var terabyte = gigabyte * 1024
-
 	if ((bytes >= 0) &&
 		(bytes < kilobyte)) {
-
 		return bytes + ' B'
 	}
 	else if ((bytes >= kilobyte) &&
 		(bytes < megabyte)) {
-
 	    return (bytes / kilobyte).toFixed(precision) + ' KB'
 	}
 	else if ((bytes >= megabyte) &&
 		(bytes < gigabyte)) {
-
 	    return (bytes / megabyte).toFixed(precision) + ' MB'
 	}
 	else if ((bytes >= gigabyte) &&
 		(bytes < terabyte)) {
-
 		return (bytes / gigabyte).toFixed(precision) + ' GB'
 	}
 	else if (bytes >= terabyte) {
@@ -274,12 +253,10 @@ function getHumanBytes (bytes, precision) {
 }
 
 function getHumanPeriod ( time ) {
-	
 	var second = 1000
 	var minute = 60000
 	var hour = 3600000
 	var day = 86400000
-	
 	var curTime = new Date().getTime()
 	var resultTime = Math.max(curTime - time,0)
 	var d, h, m, s
@@ -297,7 +274,7 @@ function getHumanPeriod ( time ) {
 	if (m > 0) {
 		resultTime = resultTime % minute
 	}
-	s = Math.round(resultTime / second)	
+	s = Math.round(resultTime / second)
 
 	if (d > 0) {
 		result += d + 'd '
@@ -308,27 +285,26 @@ function getHumanPeriod ( time ) {
 	if (m > 0) {
 		result += m + 'm '
 	}
-	if (s > 0) { 
+	if (s > 0) {
 		result += s + 's'
 	}
-
 	return result
 }
 
-function getAppTemplate () {	
+function getAppTemplate () {
 	return {
 		id: '',
 		name: commander.name || '',
 		group: commander.group || 'main',
 		uid: commander.run ? commander.run.split(':')[0] : '',
-		gid: commander.run ? commander.run.split(':')[1] : '',				
+		gid: commander.run ? commander.run.split(':')[1] : '',
 		script: commander.script || '',
 		env: commander.env || '',
 		params: commander.params || '',
 		created: new Date().getTime(),
 		started: '',
 		watch: {
-			enabled: commander.watch ? true : false,	
+			enabled: commander.watch ? true : false,
 			path: commander.watch || '',
 			excludes: commander.exclude ? commander.exclude.split(',') : []
 		},
@@ -336,7 +312,7 @@ function getAppTemplate () {
 		stopped: false,
 		attempted: false,
 		enabled: true,
-		stdout: null,		
+		stdout: null,
 		files: {
 			pid: commander.pid || '',
 			log: commander.log || ''
@@ -346,7 +322,7 @@ function getAppTemplate () {
 		pid: '',
 		keep: commander.keep == 'yes' ? true : false,
 		curAttempt: 0,
-		attempt: commander.attempt || 3,		
+		attempt: commander.attempt || 3,
 		status: 'down',
 		stats: {
 			uptime: 0,
@@ -427,14 +403,14 @@ function getCommandOptions () {
 	}
 	if (typeof commander.attempt != 'undefined') {
 		options.push({
-			name: 'attempt', 
+			name: 'attempt',
 			value: commander.attempt
 		})
 	}
 	if (typeof commander.watch != 'undefined') {
 		options.push({
 			name: 'watch',
-			value: commander.watch			
+			value: commander.watch
 		})
 	}
 	if (typeof commander.exclude != 'undefined') {
@@ -475,70 +451,63 @@ function getCommandOptions () {
 	return options
 }
 
-function getRequestParams ( uri, data ) {
+function getAxiosParams ( uri, data) {
 	return {
 		url: serverHost + uri,
 		headers: {
 			'Content-type': 'application/json'
 		},
-		body: data,
-		json: true
+		body: data
 	}
 }
 
-function isQueryValid (error, response, body) {
+function isQueryValid (response, body) {
 	if (!response) {
-		showHttpError( 700 )
-		return null;
-	}
-	if (error ||
-		response.statusCode != 200) {
-
-		showHttpError( response.statusCode )
+		showHttpError(700)
 		return null
 	}
 	var query = body || false
 	if (!query) {
-		showHttpError( 701 )
+		showHttpError(701)
 		return null
 	}
 	if (query.result != common.results.SPZ_OK) {
-		showError( query.error )	
+		showError(query.error)
 		return null
-	}	
+	}
 	return query
 }
 
 function sendGet (params, callback) {
-	sendRequest( 'get', params, callback )
+	sendRequest('get', params, callback)
 }
 
 function sendPut (params, callback) {
-	sendRequest( 'put', params, callback )
+	sendRequest('put', params, callback)
 }
 
 function sendPost (params, callback) {
-	sendRequest( 'post', params, callback )
+	sendRequest('post', params, callback)
 }
 
 function sendDel (params, callback) {
-	sendRequest( 'del', params, callback )
+	sendRequest('del', params, callback)
 }
 
 function sendRequest (method, params, callback) {
-	var func = request[method] || null
-	if (func) {
-		func( params, function (error, response, body) {
-			//console.log( '[receive]:\n - data: ' + JSON.stringify(body))
-			var query = isQueryValid(error, response, body)
-			if (!query) {
-				process.exit(SPZ_ERROR_EXIT)
-			}
-			else {
-				callback(query)
-			}
-		})
-	}
+	axios.request({
+		method,
+		...params
+	})
+    .then((response) => {
+        const query = isQueryValid(response, response.data)
+		if (!query) {
+			process.exit(SPZ_ERROR_EXIT)
+		}
+		else {
+			callback(query)
+		}
+    })
 }
 
 /**
@@ -569,17 +538,15 @@ commander.version(common.pkg.version)
 /*commander.command('help <command>')
 	.description('print required/allowed options for each command.')
 	.action(function (command) {
-		
+
 		showError('Sorry this command is not implemented yet.')
 	}
 )*/
 
 commander.command('install')
 	.description('install supervizer as daemon/service')
-	.action(function () {
-		
+	.action(() => {
 		showError('Sorry this command is not implemented yet.')
-
 		console.log(' You can use theses applications to install supervizer as a service:')
 		console.log()
 		console.log('  On Linux')
@@ -588,59 +555,28 @@ commander.command('install')
 		console.log('   * Upstart - (http://upstart.ubuntu.com/getting-started.html).')
 		console.log('   * Systemd - (https://wiki.ubuntu.com/SystemdForUpstartUsers).')
 		console.log()
-
-		/*console.log( '** Supervizer installer (v' + common.pkg.version + ') **')
-		
-		if (process.getuid() != 0) {
-			showError('You must run supervizer as root for this command.')
-			process.exit(SPZ_ERROR_EXIT)
-			return
-		}
-
-		var type = os.type().toLowerCase()
-		switch (type) {
-			case 'linux':
-				console.log( ' OS (' + type + ') detected.')
-				break
-			case 'darwin':
-				console.log( ' OS (' + type + ') detected.')
-				break
-			case 'windows_nt':
-				console.log( ' OS (' + type + ') detected.')
-				break
-			default:
-				showError(' OS (' + type + ') not supported.')
-				break
-		}*/
 	}
 )
 
 commander.command('uninstall')
 	.description('uninstall supervizer as daemon/service')
-	.action(function () {
-
+	.action(() => {
 		showError('Sorry this command is not implemented yet.')
-
-		/*if (process.getuid() != 0) {
-			showError('You must run supervizer as root for this command.')
-			process.exit(SPZ_ERROR_EXIT)
-			return
-		}*/	
 	}
 )
 
 commander.command('load')
 	.description('load all applications from a JSON config file')
-	.action(function () {
-		
+	.action(() => {
+
 		var data = {
 			file: commander.config || common.settings.apps,
 			options: getCommandOptions()
 		}
-		var params = getRequestParams( 'config/load', data )
+		var params = getAxiosParams('config/load', data)
 
 		//console.log( 'params', params )
-		sendPost( params, function (query) {
+		sendPost( params, (query) => {
 			showInfo(query.success)
 		})
 	}
@@ -648,16 +584,16 @@ commander.command('load')
 
 commander.command('save')
 	.description('save all applications to a JSON config file')
-	.action(function () {
-		
+	.action(() => {
+
 		var data = {
 			file: commander.config || common.settings.apps,
 			options: getCommandOptions()
 		}
-		var params = getRequestParams( 'config/save', data )
-		
+		var params = getAxiosParams('config/save', data)
+
 		//console.log( 'params', params )
-		sendPost( params, function (query) {
+		sendPost(params, (query) => {
 			showInfo(query.success)
 		})
 	}
@@ -665,16 +601,16 @@ commander.command('save')
 
 commander.command('add')
 	.description('add an application')
-	.action(function () {	
-		
+	.action(() => {
+
 		var data = {
 			app: getAppTemplate(),
 			options: getCommandOptions()
-		}		
-		var params = getRequestParams( 'apps', data )
+		}
+		var params = getAxiosParams('apps', data)
 
 		//console.log( 'params', params )
-		sendPut( params, function (query) {
+		sendPut( params, (query) => {
 			showInfo(query.success)
 		})
 	}
@@ -682,16 +618,16 @@ commander.command('add')
 
 commander.command('remove')
 	.description('remove an application')
-	.action(function() {
-		
+	.action(() => {
+
 		var data = {
 			app: getAppTemplate(),
 			options: getCommandOptions()
 		}
-		var params = getRequestParams( 'apps', data )
+		var params = getAxiosParams('apps', data)
 
 		//console.log( 'params', params )
-		sendDel( params, function (query) {
+		sendDel( params, (query) => {
 			showInfo(query.success)
 		})
 	}
@@ -699,16 +635,16 @@ commander.command('remove')
 
 commander.command('start')
 	.description('start an application')
-	.action(function () {
-		
+	.action(() => {
+
 		var data = {
 			app: getAppTemplate(),
 			options: getCommandOptions()
-		}	
-		var params = getRequestParams( 'app/start', data )
+		}
+		var params = getAxiosParams('app/start', data)
 
 		console.log( 'params', params )
-		sendPost( params, function (query) {
+		sendPost( params, (query) => {
 			showInfo(query.success)
 		})
 	}
@@ -716,16 +652,16 @@ commander.command('start')
 
 commander.command('startAll')
 	.description('start all applications')
-	.action(function() {
-		
+	.action(() => {
+
 		var data = {
 			app: getAppTemplate(),
 			options: getCommandOptions()
 		}
-		var params = getRequestParams( 'apps/start', data )
+		var params = getAxiosParams('apps/start', data)
 
 		//console.log( 'params', params )
-		sendPost( params, function (query) {
+		sendPost( params, (query) => {
 			showInfo(query.success)
 		})
 	}
@@ -733,16 +669,16 @@ commander.command('startAll')
 
 commander.command('stop')
 	.description('stop an application')
-	.action(function() {
-		
+	.action(() => {
+
 		var data = {
 			app: getAppTemplate(),
 			options: getCommandOptions()
 		}
-		var params = getRequestParams( 'app/stop', data )
-		
+		var params = getAxiosParams('app/stop', data)
+
 		//console.log( 'params', params )
-		sendPost( params, function (query) {
+		sendPost( params, (query) => {
 			showInfo(query.success)
 		})
 	}
@@ -750,15 +686,15 @@ commander.command('stop')
 
 commander.command('stopAll')
 	.description('stop all applications')
-	.action(function() {
-		
+	.action(() => {
+
 		var data = {
 			options: getCommandOptions()
-		}	
-		var params = getRequestParams( 'apps/stop', data )
-		
+		}
+		var params = getAxiosParams('apps/stop', data)
+
 		//console.log( 'params', params )
-		sendPost( params, function (query) {
+		sendPost( params, (query) => {
 			showInfo(query.success)
 		})
 	}
@@ -766,16 +702,16 @@ commander.command('stopAll')
 
 commander.command('restart')
 	.description('restart an application')
-	.action(function() {
-		
+	.action(() => {
+
 		var data = {
 			app: getAppTemplate(),
 			options: getCommandOptions()
-		}		
-		var params = getRequestParams( 'app/restart', data )
-		
+		}
+		var params = getAxiosParams('app/restart', data)
+
 		//console.log( 'params', params )
-		sendPost( params, function (query) {
+		sendPost( params, (query) => {
 			showInfo(query.success)
 		})
 	}
@@ -783,15 +719,14 @@ commander.command('restart')
 
 commander.command('restartAll')
 	.description('restart all applications')
-	.action(function() {
-		
+	.action(() => {
 		var data = {
 			options: getCommandOptions()
 		}
-		var params = getRequestParams( 'apps/restart', data )
-		
+		var params = getAxiosParams('apps/restart', data)
+
 		//console.log( 'params', params )
-		sendPost( params, function (query) {
+		sendPost( params, (query) => {
 			showInfo(query.success)
 		})
 	}
@@ -799,15 +734,15 @@ commander.command('restartAll')
 
 commander.command('list')
 	.description('list all applications')
-	.action(function() {
-		
+	.action(() => {
+
 		var data = {
 			options: getCommandOptions()
 		}
-		var params = getRequestParams( 'apps/list', data )
-		
+		var params = getAxiosParams('apps/list', data)
+
 		//console.log( 'params', params )
-		sendPost( params, function (query) {
+		sendPost( params, (query) => {
 			showAppList(query.data)
 		})
 	}
@@ -815,18 +750,18 @@ commander.command('list')
 
 commander.command('monit')
 	.description('monitor all applications')
-	.action(function() {
-		
+	.action(() => {
+
 		var data = {
 			options: getCommandOptions()
 		}
-		var params = getRequestParams( 'apps/monit', data )
+		var params = getAxiosParams('apps/monit', data)
 
 		//console.log( 'params', params )
-		var callback = function () {
-			sendPost( params, function (query) {
+		var callback = () => {
+			sendPost( params, (query) => {
 				monitAppList(query.data)
-			})			
+			})
 		}
 
 		var stdin = process.openStdin()
@@ -840,7 +775,7 @@ commander.command('monit')
 				process.exit(SPZ_SUCCESS_EXIT)
 			}
 		})
-		
+
 		callback()
 		setInterval(callback, 1000)
 	}
@@ -853,11 +788,11 @@ commander.command('secure <mode>')
 		var data = {
 			mode: mode,
 			options: getCommandOptions()
-		}		
-		var params = getRequestParams( 'secure', data )
-		
+		}
+		var params = getAxiosParams('secure', data)
+
 		//console.log( 'params', params )
-		sendPost( params, function (query) {
+		sendPost( params, (query) => {
 			showInfo(query.success)
 		})
 	}
@@ -865,18 +800,18 @@ commander.command('secure <mode>')
 
 commander.command('enable <name>')
 	.description('enable application')
-	.action(function (name) {
+	.action((name) => {
 
 		var data = {
 			app: {
 				name: name
 			},
 			options: getCommandOptions()
-		}	
-		var params = getRequestParams( 'app/enable', data )
-		
+		}
+		var params = getAxiosParams('app/enable', data)
+
 		//console.log( 'params', params )
-		sendPost( params, function (query) {
+		sendPost( params, (query) => {
 			showInfo(query.success)
 		})
 	}
@@ -884,16 +819,16 @@ commander.command('enable <name>')
 
 commander.command('enableAll')
 	.description('enable all applications')
-	.action(function() {
-		
+	.action(() => {
+
 		var data = {
 			app: getAppTemplate(),
 			options: getCommandOptions()
 		}
-		var params = getRequestParams( 'apps/enable', data )
+		var params = getAxiosParams('apps/enable', data)
 
 		//console.log( 'params', params )
-		sendPost( params, function (query) {
+		sendPost( params, (query) => {
 			showInfo(query.success)
 		})
 	}
@@ -901,18 +836,18 @@ commander.command('enableAll')
 
 commander.command('disable <name>')
 	.description('disable application')
-	.action(function (name) {
+	.action((name) => {
 
 		var data = {
 			app: {
 				name: name
 			},
 			options: getCommandOptions()
-		}		
-		var params = getRequestParams( 'app/disable', data )
-		
+		}
+		var params = getAxiosParams('app/disable', data)
+
 		//console.log( 'params', params )
-		sendPost( params, function (query) {
+		sendPost( params, (query) => {
 			showInfo(query.success)
 		})
 	}
@@ -920,16 +855,16 @@ commander.command('disable <name>')
 
 commander.command('disableAll')
 	.description('disable all applications')
-	.action(function() {
-		
+	.action(() => {
+
 		var data = {
 			app: getAppTemplate(),
 			options: getCommandOptions()
 		}
-		var params = getRequestParams( 'apps/disable', data )
+		var params = getAxiosParams('apps/disable', data)
 
 		//console.log( 'params', params )
-		sendPost( params, function (query) {
+		sendPost( params, (query) => {
 			showInfo(query.success)
 		})
 	}
@@ -937,17 +872,17 @@ commander.command('disableAll')
 
 commander.command('set <name>')
 	.description('setting application properties value')
-	.action(function (name) {
+	.action((name) => {
 
 		var data = {
 			search: name,
 			app: getAppTemplate(),
 			options: getCommandOptions()
-		}		
-		var params = getRequestParams( 'app', data )
-		
+		}
+		var params = getAxiosParams('app', data)
+
 		//console.log( 'params', params )
-		sendPost( params, function (query) {
+		sendPost( params, (query) => {
 			showInfo(query.success)
 		})
 
@@ -956,25 +891,25 @@ commander.command('set <name>')
 
 commander.command('get <name>')
 	.description('getting application properties values')
-	.action(function (name) {
-		
+	.action((name) => {
+
 		var data = {
 			app: {
 				name: name
 			},
 			options: getCommandOptions()
-		}		
-		var params = getRequestParams( 'app', data )
-		
+		}
+		var params = getAxiosParams('app', data)
+
 		//console.log( 'params', params )
-		sendGet( params, function (query) {
+		sendGet( params, (query) => {
 			showAppProperties(query.data)
 		})
 	}
 )
 
 commander.command('*')
-	.action(function () {
+	.action(() => {
 		showError('Command not found.')
 		commander.outputHelp()
 		process.exit(SPZ_ERROR_EXIT)
