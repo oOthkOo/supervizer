@@ -252,7 +252,7 @@ Donations
 
 Coins | Symbols | Addresses
 --- | --- | ---
-<img src="https://github.com/oOthkOo/supervizer/blob/main/pictures/btc.svg" alt="Bitcoin"/> | BTC | 3B52fbzNFQTaKZxWf5GrCUsASD2UP8na4A
-<img src="https://github.com/oOthkOo/supervizer/blob/main/pictures/eth.svg" alt="Ethereum"/> | ETH | 0x1C389f1f85Cdb3C2996b83fAc87E496A80698B7C
-<img src="https://github.com/oOthkOo/supervizer/blob/main/pictures/sol.png" alt="Solana"/> | SOL | F14pWhGjGLcCF8RMk4JhbK2kD49iBBwa9KFygRJo54Fm
+<img src="https://github.com/oOthkOo/supervizer/blob/master/pictures/btc.svg" alt="Bitcoin"/> | BTC | 3B52fbzNFQTaKZxWf5GrCUsASD2UP8na4A
+<img src="https://github.com/oOthkOo/supervizer/blob/master/pictures/eth.svg" alt="Ethereum"/> | ETH | 0x1C389f1f85Cdb3C2996b83fAc87E496A80698B7C
+<img src="https://github.com/oOthkOo/supervizer/blob/master/pictures/sol.png" alt="Solana"/> | SOL | F14pWhGjGLcCF8RMk4JhbK2kD49iBBwa9KFygRJo54Fm
 
