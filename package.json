@@ -1,10 +1,9 @@
 {
     "name": "supervizer",
-    "preferGlobal": "true",
     "version": "1.0.0",
     "author": {
         "name": "Tierry Danquin",
-        "email": "tierry.danquin@gmail.com",
+        "email": "contact@oothkoo.com",
         "url": "http://www.oothkoo.com"
     },
     "homepage": "https://github.com/oOthkOo/supervizer",
@@ -39,10 +38,6 @@
         "commander": "9.4.0",
         "express": "4.18.1",
         "pidusage": "^3.0.0"
-    },
-    "devDependencies": {
-        "mocha": "1.x",
-        "should": ""
     },
     "license": "MIT"
 }

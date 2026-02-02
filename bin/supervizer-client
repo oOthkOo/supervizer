@@ -10,7 +10,9 @@ var common = require('../lib/common')
 var main = require('../lib/main')
 var path = require('path')
 var Table = require('cli-table')
-var commander = require('commander')
+const {
+    program
+} = require('commander')
 var axios = require('axios')
 var color = require('cli-color')
 var os = require('os')
@@ -292,21 +294,23 @@ function getHumanPeriod ( time ) {
 }
 
 function getAppTemplate () {
-	return {
+
+    const params = program.opts()
+    return {
 		id: '',
-		name: commander.name || '',
-		group: commander.group || 'main',
-		uid: commander.run ? commander.run.split(':')[0] : '',
-		gid: commander.run ? commander.run.split(':')[1] : '',
-		script: commander.script || '',
-		env: commander.env || '',
-		params: commander.params || '',
+		name: params.name || '',
+		group: params.group || 'main',
+		uid: params.run ? params.run.split(':')[0] : '',
+		gid: params.run ? params.run.split(':')[1] : '',
+		script: params.script || '',
+		env: params.env || '',
+		params: params.params || '',
 		created: new Date().getTime(),
 		started: '',
 		watch: {
-			enabled: commander.watch ? true : false,
-			path: commander.watch || '',
-			excludes: commander.exclude ? commander.exclude.split(',') : []
+			enabled: params.watch ? true : false,
+			path: params.watch || '',
+			excludes: params.exclude ? params.exclude.split(',') : []
 		},
 		timer: null,
 		stopped: false,
@@ -314,15 +318,15 @@ function getAppTemplate () {
 		enabled: true,
 		stdout: null,
 		files: {
-			pid: commander.pid || '',
-			log: commander.log || ''
+			pid: params.pid || '',
+			log: params.log || ''
 		},
-		host: commander.host || '',
-		port: commander.port || '',
+		host: params.host || '',
+		port: params.port || '',
 		pid: '',
-		keep: commander.keep == 'yes' ? true : false,
+		keep: params.keep == 'yes' ? true : false,
 		curAttempt: 0,
-		attempt: commander.attempt || 3,
+		attempt: params.attempt || 3,
 		status: 'down',
 		stats: {
 			uptime: 0,
@@ -338,95 +342,96 @@ function getAppTemplate () {
 
 function getCommandOptions () {
 	var options = []
-	if (typeof commander.name != 'undefined') {
+    const params = program.opts()
+	if (params.name) {
 		options.push({
 			name: 'name',
-			value: commander.name
+			value: params.name
 		})
 	}
-	if (typeof commander.force != 'undefined') {
+	if (params.force) {
 		options.push({
 			name: 'force',
-			value: commander.force
+			value: params.force
 		})
 	}
-	if (typeof commander.params != 'undefined') {
+	if (params.params) {
 		options.push({
 			name: 'params',
-			value: commander.params
+			value: params.params
 		})
 	}
-	if (typeof commander.run != 'undefined') {
+	if (params.run) {
 		options.push({
 			name: 'run',
 			value: {
-				uid: commander.run.split(':')[0],
-				gid: commander.run.split(':')[1]
+				uid: params.run.split(':')[0],
+				gid: params.run.split(':')[1]
 			}
 		})
 	}
-	if (typeof commander.group != 'undefined') {
+	if (params.group) {
 		options.push({
 			name: 'group',
-			value: commander.group
+			value: params.group
 		})
 	}
-	if (typeof commander.script != 'undefined') {
+	if (params.script) {
 		options.push({
 			name: 'script',
-			value: commander.script
+			value: params.script
 		})
 	}
-	if (typeof commander.log != 'undefined') {
+	if (params.log) {
 		options.push({
 			name: 'log',
-			value: commander.log
+			value: params.log
 		})
 	}
-	if (typeof commander.pid != 'undefined') {
+	if (params.pid) {
 		options.push({
 			name: 'pid',
-			value: commander.pid
+			value: params.pid
 		})
 	}
-	if (typeof commander.host != 'undefined') {
+	if (params.host) {
 		options.push({
 			name: 'host',
-			value: commander.host
+			value: params.host
 		})
 	}
-	if (typeof commander.keep != 'undefined') {
+	if (params.keep) {
 		options.push({
 			name: 'keep',
-			value: commander.keep == 'yes' ? true : false
+			value: params.keep == 'yes' ? true : false
 		})
 	}
-	if (typeof commander.attempt != 'undefined') {
+	if (params.attempt) {
 		options.push({
 			name: 'attempt',
-			value: commander.attempt
+			value: params.attempt
 		})
 	}
-	if (typeof commander.watch != 'undefined') {
+	if (params.watch) {
 		options.push({
 			name: 'watch',
-			value: commander.watch
+			value: params.watch
 		})
 	}
-	if (typeof commander.exclude != 'undefined') {
+	if (params.exclude) {
 		options.push({
 			name: 'excludes',
-			value: commander.exclude.split(',')
+			value: params.exclude.split(',')
 		})
 	}
-	if (typeof commander.port != 'undefined') {
+	if (params.port) {
 		options.push({
 			name: 'port',
-			value: commander.port
+			value: params.port
 		})
 	}
-	if (typeof commander.auth != 'undefined') {
-		var credentials = commander.auth.split(':')
+	if (params.auth) {
+		var credentials = params.auth.split(':')
 		options.push({
 			name: 'auth',
 			value: {
@@ -435,29 +440,29 @@ function getCommandOptions () {
 			}
 		})
 	}
-	if (typeof commander.config != 'undefined') {
+	if (params.config) {
 		options.push({
 			name: 'config',
-			value: commander.config
+			value: params.config
 		})
 	}
-	if (typeof commander.env != 'undefined') {
-		//console.log('commander.env', commander.env)
+	if (params.env) {
+		//console.log('params.env', params.env)
 		options.push({
 			name: 'env',
-			value: commander.env
+			value: params.env
 		})
 	}
 	return options
 }
 
-function getAxiosParams ( uri, data) {
+function getAxiosParams (uri, data) {
 	return {
 		url: serverHost + uri,
 		headers: {
 			'Content-type': 'application/json'
 		},
-		body: data
+		data: data
 	}
 }
 
@@ -513,7 +518,7 @@ function sendRequest (method, params, callback) {
 /**
  * Setting all commands
  */
-commander.version(common.pkg.version)
+program.version(common.pkg.version)
 	.option('-v --verbose', 'display verbose data')
 	.option('-n --name <string>', 'specify application name')
 	.option('-z --env <string>', 'specify comma separated environment variables', function (value) {
@@ -535,7 +540,7 @@ commander.version(common.pkg.version)
 	.option('-c --config <file>', 'specify JSON config file to load/save')
 	.usage('[command] <options>')
 
-/*commander.command('help <command>')
+/*program.command('help <command>')
 	.description('print required/allowed options for each command.')
 	.action(function (command) {
 
@@ -543,7 +548,7 @@ commander.version(common.pkg.version)
 	}
 )*/
 
-commander.command('install')
+program.command('install')
 	.description('install supervizer as daemon/service')
 	.action(() => {
 		showError('Sorry this command is not implemented yet.')
@@ -558,19 +563,19 @@ commander.command('install')
 	}
 )
 
-commander.command('uninstall')
+program.command('uninstall')
 	.description('uninstall supervizer as daemon/service')
 	.action(() => {
 		showError('Sorry this command is not implemented yet.')
 	}
 )
 
-commander.command('load')
+program.command('load')
 	.description('load all applications from a JSON config file')
 	.action(() => {
 
 		var data = {
-			file: commander.config || common.settings.apps,
+			file: program.config || common.settings.apps,
 			options: getCommandOptions()
 		}
 		var params = getAxiosParams('config/load', data)
@@ -582,12 +587,12 @@ commander.command('load')
 	}
 )
 
-commander.command('save')
+program.command('save')
 	.description('save all applications to a JSON config file')
 	.action(() => {
 
 		var data = {
-			file: commander.config || common.settings.apps,
+			file: program.config || common.settings.apps,
 			options: getCommandOptions()
 		}
 		var params = getAxiosParams('config/save', data)
@@ -599,7 +604,7 @@ commander.command('save')
 	}
 )
 
-commander.command('add')
+program.command('add')
 	.description('add an application')
 	.action(() => {
 
@@ -607,16 +612,15 @@ commander.command('add')
 			app: getAppTemplate(),
 			options: getCommandOptions()
 		}
-		var params = getAxiosParams('apps', data)
-
-		//console.log( 'params', params )
-		sendPut( params, (query) => {
+        var params = getAxiosParams('apps', data)
+        //console.log('params', params)
+		sendPut(params, (query) => {
 			showInfo(query.success)
 		})
 	}
 )
 
-commander.command('remove')
+program.command('remove')
 	.description('remove an application')
 	.action(() => {
 
@@ -633,7 +637,7 @@ commander.command('remove')
 	}
 )
 
-commander.command('start')
+program.command('start')
 	.description('start an application')
 	.action(() => {
 
@@ -650,7 +654,7 @@ commander.command('start')
 	}
 )
 
-commander.command('startAll')
+program.command('startAll')
 	.description('start all applications')
 	.action(() => {
 
@@ -667,7 +671,7 @@ commander.command('startAll')
 	}
 )
 
-commander.command('stop')
+program.command('stop')
 	.description('stop an application')
 	.action(() => {
 
@@ -684,7 +688,7 @@ commander.command('stop')
 	}
 )
 
-commander.command('stopAll')
+program.command('stopAll')
 	.description('stop all applications')
 	.action(() => {
 
@@ -700,7 +704,7 @@ commander.command('stopAll')
 	}
 )
 
-commander.command('restart')
+program.command('restart')
 	.description('restart an application')
 	.action(() => {
 
@@ -717,7 +721,7 @@ commander.command('restart')
 	}
 )
 
-commander.command('restartAll')
+program.command('restartAll')
 	.description('restart all applications')
 	.action(() => {
 		var data = {
@@ -732,7 +736,7 @@ commander.command('restartAll')
 	}
 )
 
-commander.command('list')
+program.command('list')
 	.description('list all applications')
 	.action(() => {
 
@@ -748,7 +752,7 @@ commander.command('list')
 	}
 )
 
-commander.command('monit')
+program.command('monit')
 	.description('monitor all applications')
 	.action(() => {
 
@@ -781,7 +785,7 @@ commander.command('monit')
 	}
 )
 
-commander.command('secure <mode>')
+program.command('secure <mode>')
 	.description('create/update/remove security authentication')
 	.action(function (mode) {
 
@@ -798,7 +802,7 @@ commander.command('secure <mode>')
 	}
 )
 
-commander.command('enable <name>')
+program.command('enable <name>')
 	.description('enable application')
 	.action((name) => {
 
@@ -817,7 +821,7 @@ commander.command('enable <name>')
 	}
 )
 
-commander.command('enableAll')
+program.command('enableAll')
 	.description('enable all applications')
 	.action(() => {
 
@@ -834,7 +838,7 @@ commander.command('enableAll')
 	}
 )
 
-commander.command('disable <name>')
+program.command('disable <name>')
 	.description('disable application')
 	.action((name) => {
 
@@ -853,7 +857,7 @@ commander.command('disable <name>')
 	}
 )
 
-commander.command('disableAll')
+program.command('disableAll')
 	.description('disable all applications')
 	.action(() => {
 
@@ -870,7 +874,7 @@ commander.command('disableAll')
 	}
 )
 
-commander.command('set <name>')
+program.command('set <name>')
 	.description('setting application properties value')
 	.action((name) => {
 
@@ -889,7 +893,7 @@ commander.command('set <name>')
 	}
 )
 
-commander.command('get <name>')
+program.command('get <name>')
 	.description('getting application properties values')
 	.action((name) => {
 
@@ -908,19 +912,19 @@ commander.command('get <name>')
 	}
 )
 
-commander.command('*')
+program.command('*')
 	.action(() => {
 		showError('Command not found.')
-		commander.outputHelp()
+		program.outputHelp()
 		process.exit(SPZ_ERROR_EXIT)
 	}
 )
 
 if (process.argv.length == 2) {
-	commander.parse(process.argv)
-	commander.outputHelp()
+	program.parse(process.argv)
+	program.outputHelp()
 	process.exit(SPZ_ERROR_EXIT)
 }
 
 //console.log( 'process.argv.length: ' + process.argv.length )
-commander.parse(process.argv)
+program.parse(process.argv)
