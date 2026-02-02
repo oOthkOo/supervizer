@@ -254,7 +254,7 @@ function getHumanBytes (bytes, precision) {
 	}
 }
 
-function getHumanPeriod ( time ) {
+function getHumanPeriod (time) {
 	var second = 1000
 	var minute = 60000
 	var hour = 3600000
@@ -293,24 +293,22 @@ function getHumanPeriod ( time ) {
 	return result
 }
 
-function getAppTemplate () {
-
-    const params = program.opts()
+function getAppTemplate (options) {
     return {
 		id: '',
-		name: params.name || '',
-		group: params.group || 'main',
-		uid: params.run ? params.run.split(':')[0] : '',
-		gid: params.run ? params.run.split(':')[1] : '',
-		script: params.script || '',
-		env: params.env || '',
-		params: params.params || '',
+		name: options.name || '',
+		group: options.group || 'main',
+		uid: options.run ? options.run.split(':')[0] : '',
+		gid: options.run ? options.run.split(':')[1] : '',
+		script: options.script || '',
+		env: options.env || '',
+		params: options.params || '',
 		created: new Date().getTime(),
 		started: '',
 		watch: {
-			enabled: params.watch ? true : false,
-			path: params.watch || '',
-			excludes: params.exclude ? params.exclude.split(',') : []
+			enabled: options.watch ? true : false,
+			path: options.watch || '',
+			excludes: options.exclude ? options.exclude.split(',') : []
 		},
 		timer: null,
 		stopped: false,
@@ -318,15 +316,15 @@ function getAppTemplate () {
 		enabled: true,
 		stdout: null,
 		files: {
-			pid: params.pid || '',
-			log: params.log || ''
+			pid: options.pid || '',
+			log: options.log || ''
 		},
-		host: params.host || '',
-		port: params.port || '',
+		host: options.host || '',
+		port: options.port || '',
 		pid: '',
-		keep: params.keep == 'yes' ? true : false,
+		keep: options.keep == 'yes' ? true : false,
 		curAttempt: 0,
-		attempt: params.attempt || 3,
+		attempt: options.attempt || 3,
 		status: 'down',
 		stats: {
 			uptime: 0,
@@ -340,99 +338,98 @@ function getAppTemplate () {
 	}
 }
 
-function getCommandOptions () {
-	var options = []
-    const params = program.opts()
-	if (params.name) {
-		options.push({
+function getCommandOptions (options) {
+	const results = []
+    if (options.name) {
+		results.push({
 			name: 'name',
-			value: params.name
+			value: options.name
 		})
 	}
-	if (params.force) {
-		options.push({
+	if (options.force) {
+		results.push({
 			name: 'force',
-			value: params.force
+			value: options.force
 		})
 	}
-	if (params.params) {
-		options.push({
+	if (options.params) {
+		results.push({
 			name: 'params',
-			value: params.params
+			value: options.params
 		})
 	}
-	if (params.run) {
-		options.push({
+	if (options.run) {
+		results.push({
 			name: 'run',
 			value: {
-				uid: params.run.split(':')[0],
-				gid: params.run.split(':')[1]
+				uid: options.run.split(':')[0],
+				gid: options.run.split(':')[1]
 			}
 		})
 	}
-	if (params.group) {
-		options.push({
+	if (options.group) {
+		results.push({
 			name: 'group',
-			value: params.group
+			value: options.group
 		})
 	}
-	if (params.script) {
-		options.push({
+	if (options.script) {
+		results.push({
 			name: 'script',
-			value: params.script
+			value: options.script
 		})
 	}
-	if (params.log) {
-		options.push({
+	if (options.log) {
+		results.push({
 			name: 'log',
-			value: params.log
+			value: options.log
 		})
 	}
-	if (params.pid) {
-		options.push({
+	if (options.pid) {
+		results.push({
 			name: 'pid',
-			value: params.pid
+			value: options.pid
 		})
 	}
-	if (params.host) {
-		options.push({
+	if (options.host) {
+		results.push({
 			name: 'host',
-			value: params.host
+			value: options.host
 		})
 	}
-	if (params.keep) {
-		options.push({
+	if (options.keep) {
+		results.push({
 			name: 'keep',
-			value: params.keep == 'yes' ? true : false
+			value: options.keep == 'yes' ? true : false
 		})
 	}
-	if (params.attempt) {
-		options.push({
+	if (options.attempt) {
+		results.push({
 			name: 'attempt',
-			value: params.attempt
+			value: options.attempt
 		})
 	}
-	if (params.watch) {
-		options.push({
+	if (options.watch) {
+		results.push({
 			name: 'watch',
-			value: params.watch
+			value: options.watch
 		})
 	}
-	if (params.exclude) {
-		options.push({
+	if (options.exclude) {
+		results.push({
 			name: 'excludes',
-			value: params.exclude.split(',')
+			value: options.exclude.split(',')
 		})
 	}
-	if (params.port) {
-		options.push({
+	if (options.port) {
+		results.push({
 			name: 'port',
-			value: params.port
+			value: options.port
 		})
 	}
-	if (params.auth) {
-		var credentials = params.auth.split(':')
-		options.push({
+	if (options.auth) {
+		var credentials = options.auth.split(':')
+		results.push({
 			name: 'auth',
 			value: {
 				user: credentials[0],
@@ -440,20 +437,20 @@ function getCommandOptions () {
 			}
 		})
 	}
-	if (params.config) {
-		options.push({
+	if (options.config) {
+		results.push({
 			name: 'config',
-			value: params.config
+			value: options.config
 		})
 	}
-	if (params.env) {
-		//console.log('params.env', params.env)
-		options.push({
+	if (options.env) {
+		//console.log('options.env', options.env)
+		results.push({
 			name: 'env',
-			value: params.env
+			value: options.env
 		})
 	}
-	return options
+	return results
 }
 
 function getAxiosParams (uri, data) {
@@ -574,11 +571,12 @@ program.command('load')
 	.description('load all applications from a JSON config file')
 	.action(() => {
 
-		var data = {
-			file: program.config || common.settings.apps,
-			options: getCommandOptions()
+        const options = program.opts()
+		const data = {
+			file: options.config || common.settings.apps,
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('config/load', data)
+		const params = getAxiosParams('config/load', data)
 
 		//console.log( 'params', params )
 		sendPost( params, (query) => {
@@ -591,11 +589,12 @@ program.command('save')
 	.description('save all applications to a JSON config file')
 	.action(() => {
 
-		var data = {
-			file: program.config || common.settings.apps,
-			options: getCommandOptions()
+        const options = program.opts()
+		const data = {
+			file: options.config || common.settings.apps,
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('config/save', data)
+		const params = getAxiosParams('config/save', data)
 
 		//console.log( 'params', params )
 		sendPost(params, (query) => {
@@ -608,11 +607,12 @@ program.command('add')
 	.description('add an application')
 	.action(() => {
 
-		var data = {
-			app: getAppTemplate(),
-			options: getCommandOptions()
+        const options = program.opts()
+		const data = {
+			app: getAppTemplate(options),
+			options: getCommandOptions(options)
 		}
-        var params = getAxiosParams('apps', data)
+        const params = getAxiosParams('apps', data)
         //console.log('params', params)
 		sendPut(params, (query) => {
 			showInfo(query.success)
@@ -624,11 +624,12 @@ program.command('remove')
 	.description('remove an application')
 	.action(() => {
 
-		var data = {
-			app: getAppTemplate(),
-			options: getCommandOptions()
+        const options = program.opts()
+		const data = {
+			app: getAppTemplate(options),
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('apps', data)
+		const params = getAxiosParams('apps', data)
 
 		//console.log( 'params', params )
 		sendDel( params, (query) => {
@@ -641,13 +642,14 @@ program.command('start')
 	.description('start an application')
 	.action(() => {
 
-		var data = {
-			app: getAppTemplate(),
-			options: getCommandOptions()
+        const options = program.opts()
+		const data = {
+			app: getAppTemplate(options),
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('app/start', data)
+		const params = getAxiosParams('app/start', data)
 
-		console.log( 'params', params )
+		//console.log( 'params', params )
 		sendPost( params, (query) => {
 			showInfo(query.success)
 		})
@@ -658,11 +660,12 @@ program.command('startAll')
 	.description('start all applications')
 	.action(() => {
 
-		var data = {
-			app: getAppTemplate(),
-			options: getCommandOptions()
+        const options = program.opts()
+		const data = {
+			app: getAppTemplate(options),
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('apps/start', data)
+		const params = getAxiosParams('apps/start', data)
 
 		//console.log( 'params', params )
 		sendPost( params, (query) => {
@@ -675,11 +678,12 @@ program.command('stop')
 	.description('stop an application')
 	.action(() => {
 
-		var data = {
-			app: getAppTemplate(),
-			options: getCommandOptions()
+        const options = program.opts()
+		const data = {
+			app: getAppTemplate(options),
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('app/stop', data)
+		const params = getAxiosParams('app/stop', data)
 
 		//console.log( 'params', params )
 		sendPost( params, (query) => {
@@ -692,10 +696,11 @@ program.command('stopAll')
 	.description('stop all applications')
 	.action(() => {
 
-		var data = {
-			options: getCommandOptions()
+        const options = program.opts()
+		const data = {
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('apps/stop', data)
+		const params = getAxiosParams('apps/stop', data)
 
 		//console.log( 'params', params )
 		sendPost( params, (query) => {
@@ -708,11 +713,12 @@ program.command('restart')
 	.description('restart an application')
 	.action(() => {
 
-		var data = {
-			app: getAppTemplate(),
-			options: getCommandOptions()
+        const options = program.opts()
+		const data = {
+			app: getAppTemplate(options),
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('app/restart', data)
+		const params = getAxiosParams('app/restart', data)
 
 		//console.log( 'params', params )
 		sendPost( params, (query) => {
@@ -724,10 +730,12 @@ program.command('restart')
 program.command('restartAll')
 	.description('restart all applications')
 	.action(() => {
-		var data = {
-			options: getCommandOptions()
+
+        const options = program.opts()
+		const data = {
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('apps/restart', data)
+		const params = getAxiosParams('apps/restart', data)
 
 		//console.log( 'params', params )
 		sendPost( params, (query) => {
@@ -740,10 +748,11 @@ program.command('list')
 	.description('list all applications')
 	.action(() => {
 
-		var data = {
-			options: getCommandOptions()
+        const options = program.opts()
+		const data = {
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('apps/list', data)
+		const params = getAxiosParams('apps/list', data)
 
 		//console.log( 'params', params )
 		sendPost( params, (query) => {
@@ -756,10 +765,11 @@ program.command('monit')
 	.description('monitor all applications')
 	.action(() => {
 
-		var data = {
-			options: getCommandOptions()
+        const options = program.opts()
+		const data = {
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('apps/monit', data)
+		const params = getAxiosParams('apps/monit', data)
 
 		//console.log( 'params', params )
 		var callback = () => {
@@ -771,7 +781,7 @@ program.command('monit')
 		var stdin = process.openStdin()
 		stdin.setRawMode(true)
 		stdin.resume()
-		stdin.on('data', function (data) {
+		stdin.on('data', (data) => {
 			var str = data.toString()
 			if (str &&
 				(str == 'q' || str == 'Q')) {
@@ -787,13 +797,14 @@ program.command('monit')
 
 program.command('secure <mode>')
 	.description('create/update/remove security authentication')
-	.action(function (mode) {
+	.action((mode) => {
 
-		var data = {
+        const options = program.opts()
+		const data = {
 			mode: mode,
-			options: getCommandOptions()
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('secure', data)
+		const params = getAxiosParams('secure', data)
 
 		//console.log( 'params', params )
 		sendPost( params, (query) => {
@@ -806,13 +817,14 @@ program.command('enable <name>')
 	.description('enable application')
 	.action((name) => {
 
-		var data = {
+        const options = program.opts()
+		const data = {
 			app: {
 				name: name
 			},
-			options: getCommandOptions()
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('app/enable', data)
+		const params = getAxiosParams('app/enable', data)
 
 		//console.log( 'params', params )
 		sendPost( params, (query) => {
@@ -825,11 +837,12 @@ program.command('enableAll')
 	.description('enable all applications')
 	.action(() => {
 
-		var data = {
-			app: getAppTemplate(),
-			options: getCommandOptions()
+        const options = program.opts()
+		const data = {
+			app: getAppTemplate(options),
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('apps/enable', data)
+		const params = getAxiosParams('apps/enable', data)
 
 		//console.log( 'params', params )
 		sendPost( params, (query) => {
@@ -842,13 +855,14 @@ program.command('disable <name>')
 	.description('disable application')
 	.action((name) => {
 
-		var data = {
+        const options = program.opts()
+		const data = {
 			app: {
 				name: name
 			},
-			options: getCommandOptions()
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('app/disable', data)
+		const params = getAxiosParams('app/disable', data)
 
 		//console.log( 'params', params )
 		sendPost( params, (query) => {
@@ -861,11 +875,12 @@ program.command('disableAll')
 	.description('disable all applications')
 	.action(() => {
 
-		var data = {
-			app: getAppTemplate(),
-			options: getCommandOptions()
+        const options = program.opts()
+		const data = {
+			app: getAppTemplate(options),
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('apps/disable', data)
+		const params = getAxiosParams('apps/disable', data)
 
 		//console.log( 'params', params )
 		sendPost( params, (query) => {
@@ -878,12 +893,13 @@ program.command('set <name>')
 	.description('setting application properties value')
 	.action((name) => {
 
-		var data = {
+        const options = program.opts()
+		const data = {
 			search: name,
-			app: getAppTemplate(),
-			options: getCommandOptions()
+			app: getAppTemplate(options),
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('app', data)
+		const params = getAxiosParams('app', data)
 
 		//console.log( 'params', params )
 		sendPost( params, (query) => {
@@ -897,13 +913,14 @@ program.command('get <name>')
 	.description('getting application properties values')
 	.action((name) => {
 
-		var data = {
+        const options = program.opts()
+		const data = {
 			app: {
 				name: name
 			},
-			options: getCommandOptions()
+			options: getCommandOptions(options)
 		}
-		var params = getAxiosParams('app', data)
+		const params = getAxiosParams('app', data)
 
 		//console.log( 'params', params )
 		sendGet( params, (query) => {
